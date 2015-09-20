@@ -64,7 +64,14 @@ void drawSprite()
       int index = (y * playerWidth) + x;
 
       int value = pgm_read_word_near(PC + index);
-      tft.drawPixel(playerX + x, playerY + y, value);
+
+      //because we're using all possible values of a uint16, we need to specify a 
+      //color that will denote transparency. In this case, it's the equivalent of
+      //magenta. These values will be ignored (not drawn).
+      if (value != 0xF81F)
+      {
+        tft.drawPixel(playerX + x, playerY + y, value);
+      }      
     }
   }
 }
