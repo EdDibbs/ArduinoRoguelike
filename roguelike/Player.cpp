@@ -50,9 +50,9 @@ void Player::Update()
   if (CurPosX != LastPosX || CurPosY != LastPosY)
   {
     Undraw();
+    Draw();
   }
-
-  Draw();
+  
 }
 
 void Player::OnActorCollision(Actor* other)
