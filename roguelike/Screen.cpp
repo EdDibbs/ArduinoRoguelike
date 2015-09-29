@@ -23,6 +23,11 @@ int Screen::Height()
   return tft.height();
 }
 
+void Screen::DrawPixel(short xpos, short ypos, int pixel)
+{
+  tft.drawPixel(xpos, ypos, pixel);
+}
+
 void Screen::Draw(short xpos, short ypos, short width, short height, int* pixels)
 {
   for ( int x = 0; x < width; x++)
@@ -39,7 +44,7 @@ void Screen::Draw(short xpos, short ypos, short width, short height, int* pixels
       if (value != 0xF81F)
       {
         tft.drawPixel(xpos + x, ypos + y, value);
-      }      
+      }  
     }
   }
 }
@@ -48,4 +53,6 @@ void Screen::DrawRect(short xpos, short ypos, short width, short height, int col
 {
   tft.fillRect(xpos, ypos, width, height, color);
 }
+
+
 

@@ -1,3 +1,6 @@
+#ifndef __SCREEN_h
+#define __SCREEN_h
+
 #include <Adafruit_GFX.h>   //Core graphics library
 #include <Adafruit_ST7735.h> //hardware-specific library
 #include <SPI.h> //??
@@ -11,7 +14,7 @@
 
 //Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
 
-#define COLOR_BG ST7735_BLACK
+#define COLOR_BG ST7735_WHITE
 
 class Screen
 {
@@ -24,19 +27,20 @@ class Screen
     
     void Init();
     void Draw(short xpos, short ypos, short width, short height, int* pixels);
+    void DrawPixel(short xpos, short ypos, int pixel);
     void DrawRect(short xpos, short ypos, short width, short height, int color);
     int Width();
     int Height();
     
     //going to need something here to keep track of the BG tiles
 
-
+    Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);;
   private:
     Screen();
     Screen(Screen const&);
     void operator=(Screen const&);
 
-    Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);;
+    
     
 };
-
+#endif

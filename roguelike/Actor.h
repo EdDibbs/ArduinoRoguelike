@@ -1,3 +1,6 @@
+#ifndef __ACTOR_h
+#define __ACTOR_h
+
 class Actor
 {
   public:
@@ -22,3 +25,4 @@ class Actor
     int* Pixels;
 };
 
+#endif
