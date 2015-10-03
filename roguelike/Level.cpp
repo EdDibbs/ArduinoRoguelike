@@ -58,6 +58,42 @@ void Level::ReleaseRoom(Room* room)
   room = NULL;
 }
 
+uint16_t* Level::GetTilePixelsCopyByType(TileType type)
+{
+  byte flip = 0;
+  byte rot = 0;
+  uint16_t* sprite = NULL;
+  
+  switch (type)
+      {
+          case WallNorth:   sprite = NorthSouthWallTile;                   break;
+          case WallEast:    sprite = WestEastWallTile;   flip = FlipHori;  break;
+          case WallSouth:   sprite = NorthSouthWallTile; flip = FlipVert;  break;
+          case WallWest:    sprite = WestEastWallTile;                     break;
+          case DoorNorth:   sprite = NorthSouthDoorTile;                   break;
+          case DoorEast:    sprite = WestEastDoorTile;   flip = FlipHori;  break;
+          case DoorSouth:   sprite = NorthSouthDoorTile; flip = FlipVert;  break;
+          case DoorWest:    sprite = WestEastDoorTile;                     break;
+          case FloorNormal: sprite = FloorTile;                            break;
+          case FloorAlt:                                                   break;
+          case FloorHole:                                                  break;
+          case FloorRock:                                                  break;
+          case CornerNW:    sprite = CornerTile;                           break;
+          case CornerNE:    sprite = CornerTile; rot = Rot90;              break;          
+          case CornerSE:    sprite = CornerTile; rot = Rot180;             break;
+          case CornerSW:    sprite = CornerTile; rot = Rot270;             break;
+      }
+
+  if (sprite == NULL)
+  {
+      Serial.print("Couldn't get tile pixels by type: ");
+      Serial.println(type);
+      sprite = FloorTile;
+  }
+
+  return Screen::Instance().FlipAndRotateImage(TileWidth, TileHeight, sprite, flip, rot);
+}
+
 void Level::LoadJungleSprites()
 {
   for(int i = 0; i < 5; i++) //UPDATE THIS TO 6 WHEN WE HAVE THE WEST DOOR TILE
@@ -174,7 +210,7 @@ void Level::TestDraw()
           case CornerSW:    floorSprite = CornerTile; rot = Rot270;             break;
       }
 
-      Screen::Instance().Draw(col * TileWidth, LevelDrawYOffset + (row * TileHeight), TileWidth, TileHeight, floorSprite, flip, rot);
+      Screen::Instance().Draw(LevelDrawXOffset + (col * TileWidth), LevelDrawYOffset + (row * TileHeight), TileWidth, TileHeight, floorSprite, flip, rot);
     }
   }
   long totTime = millis() - startTime;

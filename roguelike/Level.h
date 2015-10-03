@@ -4,14 +4,19 @@
 #include "Room.h"
 #include <Arduino.h>
 
-#define LevelDrawYOffset 24
-#define LevelDrawXOffset 0
+#define LevelDrawYOffset 30
+#define LevelDrawXOffset 2
 
 #define LevelWidth 13
 #define LevelHeight 8
 
 #define TileWidth 12
 #define TileHeight 12
+
+#define LevelMinX LevelDrawXOffset
+#define LevelMinY LevelDrawYOffset
+#define LevelMaxX LevelWidth * TileWidth + LevelMinX
+#define LevelMaxY LevelHeight* TileHeight+ LevelMinY
 
 enum LevelType
 {
@@ -27,6 +32,8 @@ class Level
   LevelType Type;
   Room* EntryRoom;
   Room* CurrentRoom;
+
+  uint16_t* GetTilePixelsCopyByType(TileType type);
   
   uint16_t* FloorTile;
   uint16_t* NorthSouthWallTile;

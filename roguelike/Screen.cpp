@@ -108,6 +108,59 @@ void Screen::Draw(short xpos, short ypos, short width, short height, uint16_t* p
   }
 }
 
+uint16_t* Screen::FlipAndRotateImage(short width, short height, uint16_t* pixels, byte flip, byte rot)
+{
+  uint16_t* out = new uint16_t[width * height];
+  
+  for ( int x = 0; x < width; x++)
+  {
+    for (int y = 0; y < height; y++)
+    {
+      int newX = x,newY = y;
+
+      if (flip == FlipBoth)
+      {
+        newX = width - x - 1;
+        newY = height - y - 1;
+      }
+      else if (flip == FlipHori)
+      {
+        newX = width - x -1;        
+      }
+      else if (flip == FlipVert)
+      {
+        newY = height - y - 1;
+      }
+
+      //limit to 3 rotations
+      rot = rot % 4;
+      for (int rotIndex = 0; rotIndex < rot; rotIndex++)
+      {
+        int tempX = newX, tempY = newY;
+
+        newX = height - tempY - 1;
+        newY = tempX;
+      }
+
+      int index = (newY * width) + newX;
+      int value = pixels[index];
+
+      out[(y * width) + x] =  pixels[index];      
+    }
+  }
+
+  return out;
+}
+
+uint16_t* Screen::FlipImage(short width, short height, uint16_t* pixels, byte flip)
+{
+  return FlipAndRotateImage(width, height, pixels, flip, 0);
+}
+uint16_t* Screen::RotateImage(short width, short height, uint16_t* pixels, byte rot)
+{
+  return FlipAndRotateImage(width, height, pixels, 0, rot);
+}
+    
 void Screen::DrawRect(short xpos, short ypos, short width, short height, int color)
 {
   __FillRect(xpos, ypos, width, height, color);

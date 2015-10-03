@@ -22,6 +22,11 @@ class Screen
     void Init();
     void Draw(short xpos, short ypos, short width, short height, uint16_t* pixels);
     void Draw(short xpos, short ypos, short width, short height, uint16_t* pixels, byte flip, byte rot);
+
+    uint16_t* FlipAndRotateImage(short width, short height, uint16_t* pixels, byte flip, byte rot);
+    uint16_t* FlipImage(short width, short height, uint16_t* pixels, byte flip);
+    uint16_t* RotateImage(short width, short height, uint16_t* pixels, byte rot);
+    
     void DrawPixel(short xpos, short ypos, uint16_t pixel);
     void DrawRect(short xpos, short ypos, short width, short height, int color);
     int Width();
