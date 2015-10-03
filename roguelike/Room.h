@@ -19,6 +19,25 @@ struct PlayGrid
   Unit* cells[GRID_WIDTH][GRID_HEIGHT];
 };
 
+enum TileType{
+  WallNorth,
+  WallEast,
+  WallSouth,
+  WallWest,
+  DoorNorth,
+  DoorEast,
+  DoorSouth,
+  DoorWest,
+  FloorNormal,
+  FloorAlt,
+  FloorHole,
+  FloorRock,
+  CornerNW,
+  CornerNE,
+  CornerSW,
+  CornerSE,
+};
+
 struct Room
 {
   Room* NorthNeighbor;
@@ -27,7 +46,7 @@ struct Room
   Room* WestNeighbor;
 
   PlayGrid* Grid;  
-  
+  TileType* Tiles;
   bool FlaggedForDeletion;
 };
 

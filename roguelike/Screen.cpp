@@ -59,12 +59,42 @@ void Screen::DrawPixel(short xpos, short ypos, uint16_t pixel)
 
 void Screen::Draw(short xpos, short ypos, short width, short height, uint16_t* pixels)
 {
+  Draw(xpos, ypos, width, height, pixels, 0, 0);
+}
+
+void Screen::Draw(short xpos, short ypos, short width, short height, uint16_t* pixels, byte flip, byte rot)
+{
   for ( int x = 0; x < width; x++)
   {
     for (int y = 0; y < height; y++)
     {
-      int index = (y * width) + x;
+      int newX = x,newY = y;
 
+      if (flip == FlipBoth)
+      {
+        newX = width - x - 1;
+        newY = height - y - 1;
+      }
+      else if (flip == FlipHori)
+      {
+        newX = width - x -1;        
+      }
+      else if (flip == FlipVert)
+      {
+        newY = height - y - 1;
+      }
+
+      //limit to 3 rotations
+      rot = rot % 4;
+      for (int rotIndex = 0; rotIndex < rot; rotIndex++)
+      {
+        int tempX = newX, tempY = newY;
+
+        newX = height - tempY - 1;
+        newY = tempX;
+      }
+
+      int index = (newY * width) + newX;
       int value = pixels[index];
 
       //because we're using all possible values of a uint16, we need to specify a 

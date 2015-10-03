@@ -4,6 +4,10 @@
 #include "Room.h"
 #include <Arduino.h>
 
+#define LevelDrawYOffset 24
+#define LevelWidth 13
+#define LevelHeight 8
+
 #define TileWidth 12
 #define TileHeight 12
 
@@ -20,21 +24,20 @@ class Level
   
   LevelType Type;
   Room* EntryRoom;
-
+  Room* CurrentRoom;
+  
   uint16_t* FloorTile;
-  uint16_t* NorthWallTile;
-  uint16_t* EastWallTile;
-  uint16_t* SouthWallTile;
-  uint16_t* WestWallTile;
+  uint16_t* NorthSouthWallTile;
+  uint16_t* WestEastWallTile;
+  uint16_t* CornerTile;
 
-  uint16_t* NorthDoorTile;
-  uint16_t* EastDoorTile;
-  uint16_t* SouthDoorTile;
-  uint16_t* WestDoorTile; 
+  uint16_t* NorthSouthDoorTile;
+  uint16_t* WestEastDoorTile;
 
   private:
   void ReleaseRoom(Room* room); //recursively releases room resources
   void TestDraw();
+  void GenerateTestRoom();
   void LoadJungleSprites();
 };
 
