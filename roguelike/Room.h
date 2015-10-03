@@ -19,7 +19,7 @@ struct PlayGrid
   Unit* cells[GRID_WIDTH][GRID_HEIGHT];
 };
 
-enum TileType{
+enum TileType: byte{
   WallNorth,
   WallEast,
   WallSouth,

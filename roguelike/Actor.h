@@ -2,6 +2,8 @@
 #define __ACTOR_h
 #include <Arduino.h>
 
+class Level;
+
 enum AnimationState{
   StandDown,
   StandLeft,
@@ -20,22 +22,28 @@ enum AnimationState{
 class Actor
 {
   public:
-    Actor() {};
-  
-    virtual void Draw() = 0;
-    virtual void Undraw() = 0;
+    Actor(Level* curLevel) {CurLevel = curLevel;};
+    
+    void Draw();
+    void Undraw();
     virtual void Update() = 0;
+    void UpdateMovement();
+    virtual void UpdateAnimationFrame(uint8_t dir) {};
+    void Move(float xDir, float yDir);
+    
     virtual void OnActorCollision(Actor* other) = 0;
 
     short GetWidth()  {return Width;}
     short GetHeight() {return Height;}
   protected:
+    Level* CurLevel; //used for rendering actors on top of the terrian correctly
     int CurPosX;
     int LastPosX;
     
     int CurPosY;
     int LastPosY;
-
+    int MoveSpeed;
+    
     AnimationState CurAnimationState;
     uint8_t LastDir; //0 = up, 1 = right, 2 = down, 3 = left
     bool FlipHorizontalDraw = false;
@@ -45,10 +53,8 @@ class Actor
     uint8_t LastWidth;
     uint8_t LastHeight;
     uint8_t NumFramesPerAnim;
-    uint8_t CurAnimationCount;
+    uint8_t CurAnimationCount;    
     
-    int* Pixels;
-
     const uint16_t* CurSpritePtr;
     const uint16_t* LastSpritePtr;
 };

@@ -26,8 +26,9 @@ long lastInputMeasure;
 int lastHPdraw = -1;
 int lastFreeMem = 0;
 
-Player player;
+
 Level* CurrentLevel;
+Player* player;
 
 void setup() {  
   //setup serial communication
@@ -40,9 +41,10 @@ void setup() {
 
   CurrentLevel = new Level(Jungle);
   
-  int playerX = (screen->Width() / 2) - (player.GetWidth() / 2);
-  int playerY = (screen->Height() / 2) - (player.GetHeight() / 2);
-  player.SetPosition(playerX, playerY);
+  int playerX = (screen->Width() / 2) - (player->GetWidth() / 2);
+  int playerY = (screen->Height() / 2) - (player->GetHeight() / 2);
+  player = new Player(CurrentLevel);
+  player->SetPosition(playerX, playerY);
 
   //draw status frame
   screen->DrawRect(0,0,160,24,ST7735_BLACK); 
@@ -67,11 +69,11 @@ void loop() {
 
 void drawHearts()
 {
-  if (lastHPdraw == player.HP)
+  if (lastHPdraw == player->HP)
   {
     return;
   }
-  lastHPdraw = player.HP;
+  lastHPdraw = player->HP;
   
   const int startXpos = 130;
   const int startYpos = 5;
@@ -95,14 +97,14 @@ void drawHearts()
   
   
   //go through all the hearts that we have
-  for (int i = 0; i < player.MaxHP; i++)
+  for (int i = 0; i < player->MaxHP; i++)
   {
     int drawXPos = startXpos + ((heartWidth + 1)  * (i % maxHeartsPerRow));
     int drawYPos = startYpos + ((heartHeight + 3) * (i / maxHeartsPerRow));
 
     uint16_t* pixels = pixelsEmptHeart;
 
-    if (player.HP > i)
+    if (player->HP > i)
     {
       pixels = pixelsFullHeart;
     }
@@ -118,7 +120,7 @@ void movePlayer()
   float UpDown = ((analogRead(A7) / 1020.0) - 0.5) * -1;
   float LeftRight = ((analogRead(A6) / 1020.0) - 0.5 ) * -1;
 
-  player.Move(LeftRight, UpDown);
+  player->Move(LeftRight, UpDown);
 }
 
 void measureFreeMem()

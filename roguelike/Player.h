@@ -6,12 +6,8 @@
 class Player : public Actor
 {
   public:
-    Player();
+    Player(Level* curLevel);
 
-    void Move(float xDir, float yDir);
-    void Draw();
-    void DrawFromDisk();
-    void Undraw();
     void Update();
     void UpdateAnimationFrame(uint8_t dir);
     void OnActorCollision(Actor* other);
@@ -21,7 +17,7 @@ class Player : public Actor
     int MaxHP;
     
   private:
-    const static int MoveSpeed = 10;
+    
     
     
 };
