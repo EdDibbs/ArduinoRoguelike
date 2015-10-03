@@ -4,9 +4,9 @@
 
 Player::Player()
 {
-  Width = (short)pgm_read_word_near(PC2_DOWN_WIDTH);
-  Height = (short)pgm_read_word_near(PC2_DOWN_HEIGHT);
-  MoveSpeed = 10;
+  LastSpritePtr = PC_DOWN;
+  CurSpritePtr = PC_DOWN;
+ 
 
   HP = 3;
   MaxHP = 6;
@@ -38,20 +38,21 @@ void Player::Move(float xDir, float yDir)
   Update();
 }
 
-void Player::Draw()
-{
-  Screen::Instance().Draw(CurPosX, CurPosY, Width, Height, Pixels);
-}
 
-void Player::DrawFromDisk()
+void Player::Draw()
 {
   for ( int x = 0; x < Width; x++)
   {
     for (int y = 0; y < Height; y++)
     {
       int index = (y * Width) + x;
-
-      int value = (int)pgm_read_word_near(PC2_DOWN + index);;
+      if (FlipHorizontalDraw)
+      {
+        x = Width - x - 1;
+      }
+      
+      //add 2 for the width and height values
+      int value = (int)pgm_read_word_near(CurSpritePtr + 2 + index);
 
       //because we're using all possible values of a uint16, we need to specify a 
       //color that will denote transparency. In this case, it's the equivalent of
@@ -66,17 +67,78 @@ void Player::DrawFromDisk()
 
 void Player::Undraw()
 {
-  Screen::Instance().DrawRect(LastPosX, LastPosY, Width, Height, COLOR_BG);
+//    for ( int x = 0; x < LastWidth; x++)
+//  {
+//    for (int y = 0; y < LastHeight; y++)
+//    {
+//      int index = (y * LastWidth) + x;
+//
+//      //add 2 for the width and height values
+//      int value = (int)pgm_read_word_near(LastSpritePtr + 2 + index);
+//
+//      //because we're using all possible values of a uint16, we need to specify a 
+//      //color that will denote transparency. In this case, it's the equivalent of
+//      //magenta. These values will be ignored (not drawn).
+//      if (value != 0xF81F)
+//      {
+//        Screen::Instance().DrawPixel(LastPosX + x, LastPosY + y, COLOR_BG);
+//      }  
+//    }
+//  }
+  Screen::Instance().DrawRect(LastPosX, LastPosY, LastWidth, LastHeight, 0x00);
 }
 
 void Player::Update()
 {
+  uint8_t newDir = 255;
+  bool needToDraw = false;
   if (CurPosX != LastPosX || CurPosY != LastPosY)
   {
-    Undraw();
-    DrawFromDisk();
+    needToDraw = true;
+
+    uint8_t xMovement, yMovement;
+
+    //get the absolute difference between the current and last positions
+    xMovement = CurPosX > LastPosX ? CurPosX - LastPosX : LastPosX - CurPosX;
+    yMovement = CurPosY > LastPosY ? CurPosY - LastPosY : LastPosY - CurPosY;
+
+    //did we more more in the xDirection?
+    if (xMovement > yMovement)
+    {
+      //did we move left or right?
+      newDir = CurPosX > LastPosX ? 1 : 3;
+    }
+    else
+    {
+      //did we move up or down?
+      newDir = CurPosY > LastPosY ? 2 : 0;
+    }
   }
   
+  if (newDir != 255 && newDir != LastDir)
+  {
+    LastSpritePtr = CurSpritePtr;
+    
+    switch (newDir)
+    {
+      case 0: CurSpritePtr = PC_UP;   FlipHorizontalDraw = false;  break;
+      case 1: CurSpritePtr = PC_LEFT; FlipHorizontalDraw = true;   break;
+      case 2: CurSpritePtr = PC_DOWN; FlipHorizontalDraw = false;  break;
+      case 3: CurSpritePtr = PC_LEFT; FlipHorizontalDraw = false;  break;
+    }
+    LastDir = newDir;
+  }
+
+  LastWidth = Width;
+  LastHeight = Height;
+  Width = (short)pgm_read_word_near(CurSpritePtr);
+  Height = (short)pgm_read_word_near(CurSpritePtr + 1);
+
+  if(needToDraw)
+  {    
+      Undraw();
+      Draw();
+  }
 }
 
 void Player::OnActorCollision(Actor* other)

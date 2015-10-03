@@ -1,6 +1,6 @@
 #ifndef __ACTOR_h
 #define __ACTOR_h
-
+#include <Arduino.h>
 class Actor
 {
   public:
@@ -14,15 +14,24 @@ class Actor
     short GetWidth()  {return Width;}
     short GetHeight() {return Height;}
   protected:
-    short CurPosX;
-    short LastPosX;
+    int CurPosX;
+    int LastPosX;
     
-    short CurPosY;
-    short LastPosY;
+    int CurPosY;
+    int LastPosY;
+
+    uint8_t LastDir; //0 = up, 1 = right, 2 = down, 3 = left
+    bool FlipHorizontalDraw = false;
     
-    short Width;
-    short Height;
+    uint8_t Width;
+    uint8_t Height;
+    uint8_t LastWidth;
+    uint8_t LastHeight;
+    
     int* Pixels;
+
+    const uint16_t* CurSpritePtr;
+    const uint16_t* LastSpritePtr;
 };
 
 #endif

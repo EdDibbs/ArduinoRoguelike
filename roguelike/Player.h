@@ -20,7 +20,9 @@ class Player : public Actor
     int MaxHP;
     
   private:
-    int MoveSpeed;
+    const static int MoveSpeed = 10;
+    
+    
 };
 
 #endif
