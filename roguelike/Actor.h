@@ -1,6 +1,22 @@
 #ifndef __ACTOR_h
 #define __ACTOR_h
 #include <Arduino.h>
+
+enum AnimationState{
+  StandDown,
+  StandLeft,
+  StandRight,
+  StandUp,
+  WalkDown,
+  WalkLeft,
+  WalkRight,
+  WalkUp,
+  AttackDown,
+  AttackLeft,
+  AttackRight,
+  AttackUp
+};
+
 class Actor
 {
   public:
@@ -20,6 +36,7 @@ class Actor
     int CurPosY;
     int LastPosY;
 
+    AnimationState CurAnimationState;
     uint8_t LastDir; //0 = up, 1 = right, 2 = down, 3 = left
     bool FlipHorizontalDraw = false;
     
@@ -27,6 +44,8 @@ class Actor
     uint8_t Height;
     uint8_t LastWidth;
     uint8_t LastHeight;
+    uint8_t NumFramesPerAnim;
+    uint8_t CurAnimationCount;
     
     int* Pixels;
 

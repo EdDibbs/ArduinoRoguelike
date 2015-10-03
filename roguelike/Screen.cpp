@@ -52,12 +52,12 @@ int Screen::Height()
   return __ScreenHeight();
 }
 
-void Screen::DrawPixel(short xpos, short ypos, int pixel)
+void Screen::DrawPixel(short xpos, short ypos, uint16_t pixel)
 {
   __DrawPixel(xpos, ypos, pixel);
 }
 
-void Screen::Draw(short xpos, short ypos, short width, short height, int* pixels)
+void Screen::Draw(short xpos, short ypos, short width, short height, uint16_t* pixels)
 {
   for ( int x = 0; x < width; x++)
   {

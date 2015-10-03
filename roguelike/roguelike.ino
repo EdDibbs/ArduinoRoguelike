@@ -31,11 +31,14 @@ Level* CurrentLevel;
 
 void setup() {  
   //setup serial communication
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   //init the screen
   Screen* screen = &Screen::Instance();
   screen->Init();
+  
+
+  CurrentLevel = new Level(Jungle);
   
   int playerX = (screen->Width() / 2) - (player.GetWidth() / 2);
   int playerY = (screen->Height() / 2) - (player.GetHeight() / 2);
@@ -44,6 +47,7 @@ void setup() {
   //draw status frame
   screen->DrawRect(0,0,160,24,ST7735_BLACK); 
   lastInputMeasure = startTime = millis();
+
 }
 
 
@@ -76,13 +80,13 @@ void drawHearts()
   const short heartHeight = (short)pgm_read_word_near(HP + 1);
 
   //load the images  
-  int* pixelsFullHeart = new int[heartWidth* heartHeight];
+  uint16_t* pixelsFullHeart = new uint16_t[heartWidth* heartHeight];
   for (int i = 0; i < heartWidth* heartHeight; i++)
   {
     pixelsFullHeart[i] = pgm_read_word_near(HP + 2 + i);  
   }
 
-  int* pixelsEmptHeart = new int[heartWidth * heartHeight];
+  uint16_t* pixelsEmptHeart = new uint16_t[heartWidth * heartHeight];
   for (int i = 0; i < heartWidth* heartHeight; i++)
   {
     pixelsEmptHeart[i] = pgm_read_word_near(HP_EMPTY + 2 + i);  
@@ -96,7 +100,7 @@ void drawHearts()
     int drawXPos = startXpos + ((heartWidth + 1)  * (i % maxHeartsPerRow));
     int drawYPos = startYpos + ((heartHeight + 3) * (i / maxHeartsPerRow));
 
-    int* pixels = pixelsEmptHeart;
+    uint16_t* pixels = pixelsEmptHeart;
 
     if (player.HP > i)
     {
@@ -146,9 +150,6 @@ void measureFPS()
     printFPS(lastFPS, ST7735_BLACK);
     lastFPS = count;
     printFPS(lastFPS, ST7735_WHITE);
-    Serial.print("Free memory: ");
-    Serial.print(freeMemory());
-    Serial.println(" Bytes");
     
     startTime = millis();
     count = 0;
@@ -160,6 +161,7 @@ void printFPS(unsigned long fps, uint64_t color)
   __SetCursor(1,1);
   __SetTextColor(color);
   _tft.print(fps, DEC);
+  
   //Serial.print("FPS: ");
   //Serial.println(fps);
 }
