@@ -3,7 +3,11 @@
 #include <Arduino.h>
 
 class Level;
-
+static uint32_t NextUniqueId = 0;
+static uint32_t GetUniqueId(){
+  return NextUniqueId++;
+  }
+  
 enum AnimationState{
   StandDown,
   StandLeft,
@@ -22,12 +26,13 @@ enum AnimationState{
 class Actor
 {
   public:
-    Actor(Level* curLevel) {CurLevel = curLevel;};
+    Actor(Level* curLevel) {CurLevel = curLevel; UniqueId = GetUniqueId();};
     
     void Draw();
     void Undraw();
     virtual void Update() = 0;
     void UpdateMovement();
+    void UpdatePlaygridLoc();
     virtual void UpdateAnimationFrame(uint8_t dir) {};
     void Move(float xDir, float yDir);
     
@@ -35,6 +40,7 @@ class Actor
 
     short GetWidth()  {return Width;}
     short GetHeight() {return Height;}
+    
   protected:
     Level* CurLevel; //used for rendering actors on top of the terrian correctly
     int CurPosX;
@@ -57,6 +63,8 @@ class Actor
     
     const uint16_t* CurSpritePtr;
     const uint16_t* LastSpritePtr;
+
+    uint32_t UniqueId;
 };
 
 #endif

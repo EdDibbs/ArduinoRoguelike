@@ -11,14 +11,6 @@ struct Unit
   Unit* prev;
 };
 
-struct PlayGrid
-{
-  static const int GRID_WIDTH = 13;
-  static const int GRID_HEIGHT = 8;
-
-  Unit* cells[GRID_WIDTH][GRID_HEIGHT];
-};
-
 enum TileType: byte{
   WallNorth,
   WallEast,
@@ -40,12 +32,15 @@ enum TileType: byte{
 
 struct Room
 {
+  static const int GRID_WIDTH = 13;
+  static const int GRID_HEIGHT = 8;
+  
   Room* NorthNeighbor;
   Room* EastNeighbor;
   Room* SouthNeighbor;
   Room* WestNeighbor;
 
-  PlayGrid* Grid;  
+  Unit* cells[GRID_WIDTH][GRID_HEIGHT];  
   TileType* Tiles;
   bool FlaggedForDeletion;
 };

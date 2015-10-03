@@ -1,5 +1,6 @@
 #include "Actor.h"
 #include "Screen.h"
+#include "Level.h"
 
 void Actor::Draw()
 {
@@ -54,8 +55,7 @@ void Actor::Move(float xDir, float yDir)
 {
   int screenWidth = Screen::Instance().Width();
   int screenHeight = Screen::Instance().Height();
-
-  //TODO: check against map for collisions
+  
   LastPosX = CurPosX;
   CurPosX = CurPosX + (int)(MoveSpeed * xDir);
   if (CurPosX + Width > screenWidth) CurPosX = screenWidth - Width;
@@ -66,7 +66,91 @@ void Actor::Move(float xDir, float yDir)
   if (CurPosY + Height > screenHeight) CurPosY = screenHeight - Height;
   if (CurPosY < 24) CurPosY = 24;
 
+  //check against map for collisions
+
+  //move back to where we were in case of collisions
+
+  //move us in the playfield if necessary
+  UpdatePlaygridLoc();
+
   UpdateMovement();
+}
+void Actor::UpdatePlaygridLoc()
+{
+    if (CurLevel != NULL && CurLevel->CurrentRoom != NULL)
+  {
+    //get our old grid coords
+    int oldX = (LastPosX - LevelDrawXOffset) / TileWidth;
+    int oldY = (LastPosY - LevelDrawYOffset) / TileHeight;
+
+    //get our new grid coords
+    int newX = (CurPosX - LevelDrawXOffset) / TileWidth;
+    int newY = (CurPosY - LevelDrawYOffset) / TileHeight;
+        
+    if (newX != oldX || newY != oldY)
+    {                
+        Serial.print("Moving from [");
+        Serial.print(oldX);
+        Serial.print(", ");
+        Serial.print(oldY);
+        Serial.print("] to [");
+        Serial.print(newX);
+        Serial.print(", ");
+        Serial.print(newY);
+        Serial.println("]...");
+        
+      //take us out of the old grid
+      if (CurLevel->CurrentRoom->cells != NULL && CurLevel->CurrentRoom->cells[oldX][oldY] != NULL)
+      {
+        Unit* unit = CurLevel->CurrentRoom->cells[oldX][oldY];
+  
+        //try to find us (a unit with this id
+        while (unit != NULL && unit->actor != NULL && unit->actor->UniqueId != this->UniqueId)
+        {
+          unit = unit->next;
+        }
+  
+        //check if we found ourselves
+        if (unit != NULL && unit->actor != NULL && unit->actor->UniqueId == this->UniqueId)
+        {
+          //break the link to this actor
+          if (unit->prev != NULL)
+          {
+            unit->prev->next = unit->next;
+          }
+          else
+          {
+            CurLevel->CurrentRoom->cells[oldX][oldY] = unit->next;
+          }
+          
+          Serial.print("Removing unit from [");
+          Serial.print(oldX);
+          Serial.print(", ");
+          Serial.print(oldY);
+          Serial.println("].");
+          //free the memory
+          delete unit;
+        }
+      }
+  
+      //put us in the new grid square
+      if (CurLevel->CurrentRoom->cells != NULL)
+      {
+        Unit* newUnit = new Unit;
+        newUnit->actor = this;
+        newUnit->prev = NULL;
+        newUnit->next = CurLevel->CurrentRoom->cells[newX][newY];
+        
+        CurLevel->CurrentRoom->cells[newX][newY] = newUnit;
+        Serial.print("Adding unit to [");
+        Serial.print(newX);
+        Serial.print(", ");
+        Serial.print(newY);
+        Serial.println("].");
+      }
+
+    }
+  }
 }
 
 void Actor::UpdateMovement()

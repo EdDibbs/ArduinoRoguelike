@@ -5,6 +5,8 @@
 #include <Arduino.h>
 
 #define LevelDrawYOffset 24
+#define LevelDrawXOffset 0
+
 #define LevelWidth 13
 #define LevelHeight 8
 
