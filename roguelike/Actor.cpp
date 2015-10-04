@@ -2,6 +2,16 @@
 #include "Screen.h"
 #include "Level.h"
 
+Actor::Actor(Level* curLevel)
+{
+  CurLevel = curLevel;
+  UniqueId = GetUniqueId();
+  LastPosX = CurPosX = SCREEN_WIDTH / 2;
+  LastPosY = CurPosY = SCREEN_HEIGHT /2;
+  LastWidth= Width = 0;
+  LastHeight= Height = 0;  
+}
+
 void Actor::Draw()
 {
   for ( int x = 0; x < Width; x++)
@@ -38,52 +48,126 @@ void Actor::Undraw()
   //find the bg tiles that could have been where we were  
   Room* curRoom = CurLevel->CurrentRoom;
 
-  //get the types of tiles around us at the time
-  //and put them into our buffer
 
+  //This next loop nest goes through all pixels that we occupied during
+  //our last frame, finds the corresponding pixel in the sprite of
+  //the background tile that we stood in front of during our last frame.
+  //It then writes this pixel to the fillBuffer.
+
+  //So, we know that we occupied up to LastWidth amount of pixels on the horizontal
+  //during our last draw. But we want to figure out how many of those pixels
+  //were in the first of the four BG tiles that we're going to check.
+  //We do this so that we only have to cache the BG tiles once each.
+
+  uint8_t numXPixelsInQ1 = TileWidth  - ((LastPosX - LevelDrawXOffset) % TileWidth);
+  uint8_t numYPixelsInQ1 = TileHeight - ((LastPosY - LevelDrawYOffset) % TileHeight);
+//  Serial.print("LastPosX: ");
+//  Serial.print(LastPosX);
+//  Serial.print(", LevelDrawXOffset: ");
+//  Serial.print(LevelDrawXOffset);
+//  Serial.print(", TileWidth: ");
+//  Serial.print(TileWidth);
+//  Serial.print(", numXPixelsInQ1: ");
+//  Serial.print(numXPixelsInQ1);
+//  Serial.print(", NumYPixelsInQ1: ");
+//  Serial.println(numYPixelsInQ1);
+
+  int loadTileCount = 0;
   uint16_t* tileSprite = NULL;
   int lastOldXTile = -1;
   int lastOldYTile = -1;
-  for (int x = LastPosX; x < LastPosX + LastWidth; x++)
+  for (int quadrant = 1; quadrant < 5; quadrant++)
   {
-    for (int y = LastPosY; y < LastPosY + LastHeight; y++)
+    int minX, maxX, minY, maxY;
+    switch (quadrant)
     {
-      //preset our buffer to transparent
-      int index = ((y - LastPosY) * LastWidth) + (x - LastPosX);
-      fillBuffer[index] = 0xF81F;
-      
-      int oldXTile = (x - LevelDrawXOffset) / TileWidth;
-      int oldYTile = (y - LevelDrawYOffset) / TileHeight;
-      
-      if (oldXTile >= LevelWidth || oldYTile >= LevelHeight) {
-        continue;
-      }
-
-      //don't bother reloading the tile if we are doing the same tile
-      if (oldXTile != lastOldXTile || oldYTile != lastOldYTile)
+      case 1:
+        minX = LastPosX;        
+        maxX = minX + numXPixelsInQ1;
+        minY = LastPosY;
+        maxY = minY + numYPixelsInQ1;
+        break;
+      case 2:
+        minX = LastPosX + numXPixelsInQ1;        
+        maxX = LastPosX + LastWidth;
+        minY = LastPosY;
+        maxY = minY + numYPixelsInQ1;
+        break;
+      case 3:
+        minX = LastPosX;        
+        maxX = minX + numXPixelsInQ1;
+        minY = LastPosY + numYPixelsInQ1;
+        maxY = LastPosY + LastHeight;
+        break;
+      case 4:
+        minX = LastPosX + numXPixelsInQ1;        
+        maxX = LastPosX + LastWidth;
+        minY = LastPosY + numYPixelsInQ1;
+        maxY = LastPosY + LastHeight;      
+        break;
+    }
+//      Serial.print("quadrant: ");
+//      Serial.print(quadrant);
+//      Serial.print(", minX: ");
+//      Serial.print(minX);
+//      Serial.print(", maxX: ");
+//      Serial.print(maxX);
+//      Serial.print(", minY: ");
+//      Serial.print(minY);
+//      Serial.print(", maxY: ");
+//      Serial.println(maxY);
+    for (int x = minX; x < maxX && x < LastPosX + LastWidth; x++)
+    {
+      for (int y = minY; y < maxY && y < LastPosY + LastHeight; y++)
       {
-        if (tileSprite != NULL) delete[] tileSprite;
-        TileType tileType = curRoom->Tiles[(oldYTile * LevelWidth) + oldXTile];
-        tileSprite = CurLevel->GetTilePixelsCopyByType(tileType);
+        //preset our buffer to transparent
+        int index = ((y - LastPosY) * LastWidth) + (x - LastPosX);
+        fillBuffer[index] = 0xF81F;    
 
-        lastOldXTile = oldXTile;
-        lastOldYTile = oldYTile;
+        //make sure we're not outside the scope of the actor's old window
+        if (x >= LastPosX + LastWidth || y >= LastPosY + LastHeight)
+        {
+          continue;
+        }        
+        
+        int oldXTile = (x - LevelDrawXOffset) / TileWidth;
+        int oldYTile = (y - LevelDrawYOffset) / TileHeight;
+
+        //account for if the sprite goes off the playfield
+        if (oldXTile >= LevelWidth || oldXTile < 0
+            || oldYTile >= LevelHeight || oldYTile < 0) {
+          continue;
+        }
+  
+        //don't bother reloading the tile if we are doing the same tile
+        if (oldXTile != lastOldXTile || oldYTile != lastOldYTile)
+        {
+          if (tileSprite != NULL) delete[] tileSprite;
+          TileType tileType = curRoom->Tiles[(oldYTile * LevelWidth) + oldXTile];
+          tileSprite = CurLevel->GetTilePixelsCopyByType(tileType);
+          loadTileCount++;
+          lastOldXTile = oldXTile;
+          lastOldYTile = oldYTile;
+        }
+        
+        //get the exact pixel on the tile that we were at
+        int tileXpos = (x - LevelDrawXOffset) % TileWidth;
+        int tileYpos = (y - LevelDrawYOffset) % TileHeight;     
+  
+        //store the pixel in our buffer
+        fillBuffer[index] = tileSprite[(tileYpos * TileWidth) + tileXpos];
       }
-      
-      //get the exact pixel on the tile that we were at
-      int tileXpos = (x - LevelDrawXOffset) % TileWidth;
-      int tileYpos = (y - LevelDrawYOffset) % TileHeight;     
-
-      //store the pixel in our buffer
-      fillBuffer[index] = tileSprite[(tileYpos * TileWidth) + tileXpos];
     }
   }
+  
   if (tileSprite != NULL) 
   {
       delete[] tileSprite;
       tileSprite = NULL;
   }
-  
+//  Serial.print("Loaded background tiles ");
+//  Serial.print(loadTileCount);
+//  Serial.println(" times.");
   //TODO: get the actors in the spot where we were
 
   //fill in the hole of where we were  
@@ -246,4 +330,17 @@ void Actor::UpdateMovement()
     Undraw();
     Draw();
   }
+}
+
+
+void Actor::SetPosition(int xpos, int ypos)
+{
+  LastPosX = CurPosX;
+  LastPosY = CurPosY;
+  
+  CurPosX = xpos;
+  CurPosY = ypos;
+  
+  //UpdatePlaygridLoc();
+  UpdateMovement();
 }

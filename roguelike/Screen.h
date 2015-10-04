@@ -2,6 +2,10 @@
 #define __SCREEN_h
 #include <Arduino.h>
 
+//assumes rotated Adafruit 1.8" screen
+#define SCREEN_WIDTH 160
+#define SCREEN_HEIGHT 128
+
 #define FlipHori 1
 #define FlipVert 2
 #define FlipBoth 3

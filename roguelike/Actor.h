@@ -26,7 +26,7 @@ enum AnimationState{
 class Actor
 {
   public:
-    Actor(Level* curLevel) {CurLevel = curLevel; UniqueId = GetUniqueId();};
+    Actor(Level* curLevel) ;
     
     void Draw();
     void Undraw();
@@ -35,6 +35,7 @@ class Actor
     void UpdatePlaygridLoc();
     virtual void UpdateAnimationFrame(uint8_t dir) {};
     void Move(float xDir, float yDir);
+    void SetPosition(int xpos, int ypos);
     
     virtual void OnActorCollision(Actor* other) = 0;
 

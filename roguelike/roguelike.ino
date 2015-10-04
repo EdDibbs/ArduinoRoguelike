@@ -31,15 +31,23 @@ Level* CurrentLevel;
 Player* player;
 
 void setup() {  
-  //setup serial communication
-  Serial.begin(115200);
-
+  //sleep for a second in case we need to do something
+  delay(500);
+  
   //init the screen
   Screen* screen = &Screen::Instance();
   screen->Init();
-  
+  __SetCursor(__ScreenWidth() / 2 - 50, __ScreenHeight()/2);
+  __SetTextColor(0xFFFF);
+  _tft.print("<Insert splash screen here>");
 
-  CurrentLevel = new Level(Jungle);
+  delay(5000);
+  __FillScreen(0x0000);
+  
+  //setup serial communication
+  Serial.begin(115200);
+
+  SwitchLevel(Jungle);
   
   int playerX = (screen->Width() / 2) - (player->GetWidth() / 2);
   int playerY = (screen->Height() / 2) - (player->GetHeight() / 2);
@@ -65,6 +73,16 @@ void loop() {
     lastInputMeasure = millis();
   }
    
+}
+
+void SwitchLevel(LevelType type)
+{
+  if (CurrentLevel != NULL)
+  {
+    delete CurrentLevel;
+  }
+
+  CurrentLevel = new Level(type);
 }
 
 void drawHearts()
@@ -135,6 +153,12 @@ void measureFreeMem()
   printMem(lastFreeMem, ST7735_BLACK);
   printMem(freeMem, ST7735_WHITE);
   lastFreeMem = freeMem;
+
+  if (freeMem < 200)
+  {
+    Serial.println("Out of memory!. Holding the program to prevent damage.");
+    while (true) ;
+  }
 }
 
 void printMem(int freeMem, uint64_t color)

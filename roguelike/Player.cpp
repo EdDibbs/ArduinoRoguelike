@@ -9,6 +9,8 @@ Player::Player(Level* curLevel) : Actor(curLevel)
   CurAnimationState = StandDown;
   NumFramesPerAnim = 10;
   CurAnimationCount = 0;
+  Width = (short)pgm_read_word_near(CurSpritePtr);
+  Height = (short)pgm_read_word_near(CurSpritePtr + 1);
   
   HP = 3;
   MaxHP = 6;
@@ -80,14 +82,4 @@ void Player::OnActorCollision(Actor* other)
   
 }
 
-void Player::SetPosition(int xpos, int ypos)
-{
-  LastPosX = CurPosX;
-  LastPosY = CurPosY;
-  
-  CurPosX = xpos;
-  CurPosY = ypos;
-
-  UpdateMovement();
-}
 

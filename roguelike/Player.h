@@ -11,7 +11,7 @@ class Player : public Actor
     void Update();
     void UpdateAnimationFrame(uint8_t dir);
     void OnActorCollision(Actor* other);
-    void SetPosition(int xpos, int ypos);
+    
 
     int HP;
     int MaxHP;
