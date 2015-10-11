@@ -13,8 +13,7 @@ class Player : public Actor
     void OnActorCollision(Actor* other);
     
 
-    int HP;
-    int MaxHP;
+
     
   private:
     

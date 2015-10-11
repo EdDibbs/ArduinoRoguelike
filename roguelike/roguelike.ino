@@ -1,6 +1,9 @@
 
 #include <Arduino.h>
 #include <avr/pgmspace.h> //abililty to store variables in program space
+
+//////////////////////////////////////
+//Screen stuff
 #include "PDQ_ST7735_config.h" //screen configuration
 #include <PDQ_FastPin.h>
 #include <PDQ_GFX.h>   //Core graphics library
@@ -8,19 +11,34 @@
 #include <SPI.h> //communication for screen
 #include "SpriteDefinitions.h"
 #include "Screen.h"
+//
+///////////////////////////////////////
+
 #include "Actor.h"
 #include "Player.h"
 #include "Level.h"
 #include "Room.h"
 #include "MemoryFree.h"
 
+///////////////////////////////////////
+//Enemies
+#include "MobBat.h"
+
+//
+///////////////////////////////////////
+
 PDQ_ST7735 _tft; //global access to the screen needed by the library
+#define JOYSTICK_LEFT_X A2
+#define JOYSTICK_LEFT_Y A3
+#define JOYSTICK_RIGHT_X A6
+#define JOYSTICK_RIGHT_Y A7
 
 //clock stuff
 long startTime;
 unsigned long count = 0;
 unsigned long lastFPS = 0;
 
+bool isRunning = false;
 long lastInputMeasure;
 
 int lastHPdraw = -1;
@@ -37,9 +55,9 @@ void setup() {
   //init the screen
   Screen* screen = &Screen::Instance();
   screen->Init();
-  __SetCursor(__ScreenWidth() / 2 - 50, __ScreenHeight()/2);
+  __SetCursor(3, __ScreenHeight()/2);
   __SetTextColor(0xFFFF);
-  _tft.print("<Insert splash screen here>");
+  _tft.print(F("Insert splash screen here"));
 
   delay(5000);
   __FillScreen(0x0000);
@@ -57,22 +75,73 @@ void setup() {
   //draw status frame
   screen->DrawRect(0,0,160,24,ST7735_BLACK); 
   lastInputMeasure = startTime = millis();
-
+  isRunning = true;
 }
 
 
 void loop() {  
-  measureFPS();
+  if (isRunning)
+  {     
+    measureFPS();
+    
+    drawHearts();
   
-  drawHearts();
-
-  if (millis() - lastInputMeasure >= 1000/60)
-  {
-    measureFreeMem();
-    movePlayer();
-    lastInputMeasure = millis();
+    if (millis() - lastInputMeasure >= 1000/60)
+    {
+      measureFreeMem();
+      movePlayer();
+      updateRoom();
+      lastInputMeasure = millis();
+    }
   }
-   
+}
+bool CheckForCollision(Actor* act1, Actor* act2)
+{
+  //AABB checking
+  if (act1->CurPosX + act1->Width > act2->CurPosX
+      && act1->CurPosX < act2->CurPosX + act2->Width
+      && act1->CurPosY + act1->Height > act2->CurPosY
+      && act1->CurPosY < act1->CurPosY + act2->Height)
+      {
+        return true;
+      }
+
+  return false;
+}
+
+void updateRoom()
+{
+  Room* room = CurrentLevel->CurrentRoom;
+
+  for (int x = 0; x < LevelWidth; x++)
+    {    
+      for (int y = 0; y < LevelHeight; y++)
+      {        
+        //update all units, except player
+        Unit* units = room->cells[x][y];
+        while (units != NULL)
+        {          
+          Actor* actor = units->actor;
+          if (actor->Type != TypePlayer)
+          {
+            actor->Update();
+          }
+
+          Unit* otherUnits = room->cells[x][y];
+          while (otherUnits != NULL)
+          {
+            //do we collide with this actor?
+            if (actor->UniqueId != otherUnits->actor->UniqueId && CheckForCollision(actor, otherUnits->actor))
+            {
+              actor->OnActorCollision(otherUnits->actor);
+            }
+            otherUnits = otherUnits->next;
+          }
+
+          units = units->next;
+        }        
+      }
+    }
 }
 
 void SwitchLevel(LevelType type)
@@ -135,8 +204,16 @@ void drawHearts()
 
 void movePlayer()
 {
-  float UpDown = ((analogRead(A7) / 1020.0) - 0.5) * -1;
-  float LeftRight = ((analogRead(A6) / 1020.0) - 0.5 ) * -1;
+  float yread = analogRead(JOYSTICK_LEFT_Y);
+  float xread = analogRead(JOYSTICK_LEFT_X);
+  
+  float UpDown = (( yread / 1012.0) - 0.5) * -1;
+  float LeftRight = ((xread / 970.0) - 0.5 ) * -1;
+  
+//  Serial.print("Y: ");
+//  Serial.print(yread);
+//  Serial.print(" X: ");
+//  Serial.println(xread);
 
   player->Move(LeftRight, UpDown);
 }
@@ -154,10 +231,10 @@ void measureFreeMem()
   printMem(freeMem, ST7735_WHITE);
   lastFreeMem = freeMem;
 
-  if (freeMem < 200)
+  if (freeMem < 500)
   {
-    Serial.println("Out of memory!. Holding the program to prevent damage.");
-    while (true) ;
+    Serial.println(F("Out of memory!. Holding the program to prevent damage."));
+    isRunning = false;
   }
 }
 

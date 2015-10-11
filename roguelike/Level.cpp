@@ -4,10 +4,11 @@
 #include "Screen.h"
 #include "SpriteDefinitions.h"
 #include "MemoryFree.h"
+#include "MobBat.h"
 
 Level::Level(LevelType type)
 {
-  Serial.println("Loading level...");
+  Serial.println(F("Loading level..."));
   long startTime = millis();
   
   switch (type)
@@ -21,9 +22,9 @@ Level::Level(LevelType type)
 
   long timeTaken = millis() - startTime;
 
-  Serial.print("Took ");
+  Serial.print(F("Took "));
   Serial.print(timeTaken);
-  Serial.println(" ms to load level.");
+  Serial.println(F(" ms to load level."));
   
   GenerateTestRoom();
   TestDraw();
@@ -86,7 +87,7 @@ uint16_t* Level::GetTilePixelsCopyByType(TileType type)
 
   if (sprite == NULL)
   {
-      Serial.print("Couldn't get tile pixels by type: ");
+      Serial.print(F("Couldn't get tile pixels by type: "));
       Serial.println(type);
       sprite = FloorTile;
   }
@@ -143,11 +144,11 @@ void Level::LoadJungleSprites()
       case 5: WestEastDoorTile  = tileHeadLocal;  break;      
     }
 
-    Serial.print("Loaded ");
+    Serial.print(F("Loaded "));
     Serial.print(i);
-    Serial.print(" tiles. ");
+    Serial.print(F(" tiles. "));
     Serial.print(freeMemory());
-    Serial.println(" bytes of memory remaining.");
+    Serial.println(F(" bytes of memory remaining."));
   }
 }
 
@@ -155,7 +156,14 @@ void Level::GenerateTestRoom()
 {
   CurrentRoom = new Room();
   CurrentRoom->Tiles = new TileType[LevelWidth*LevelHeight];
-  
+  for (int x = 0; x < LevelWidth; x++)
+    {    
+      for (int y = 0; y < LevelHeight; y++)
+      {
+        CurrentRoom->cells[x][y] = NULL;        
+      }
+    }
+    
   for (int col = 0; col < LevelWidth; col++)
   {
     for (int row = 0; row < LevelHeight; row++)
@@ -174,7 +182,17 @@ void Level::GenerateTestRoom()
       CurrentRoom->Tiles[row * LevelWidth + col] = type;
     }
   }
+
+  //add a bat
+  MobBat* bat = new MobBat(this);
+  bat->SetPosition(40, 70);
   
+  Unit* unit = new Unit();
+  unit->actor = bat;
+  unit->prev = NULL;
+  unit->next = NULL;
+  
+  CurrentRoom->cells[bat->GetTileX()][bat->GetTileY()] = unit;
 }
 
 void Level::TestDraw()
@@ -215,8 +233,8 @@ void Level::TestDraw()
   }
   long totTime = millis() - startTime;
 
-  Serial.print("Took ");
+  Serial.print(F("Took "));
   Serial.print(totTime);
-  Serial.println(" ms to draw the level.");
+  Serial.println(F(" ms to draw the level."));
 }
 

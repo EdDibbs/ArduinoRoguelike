@@ -11,6 +11,7 @@ Player::Player(Level* curLevel) : Actor(curLevel)
   CurAnimationCount = 0;
   Width = (short)pgm_read_word_near(CurSpritePtr);
   Height = (short)pgm_read_word_near(CurSpritePtr + 1);
+  Type = TypePlayer;
   
   HP = 3;
   MaxHP = 6;
@@ -74,7 +75,7 @@ void Player::UpdateAnimationFrame(uint8_t dir)
       break;
   }
 
-  CurAnimationCount = 0;
+  CurAnimationCount = 0;  
 }
 
 void Player::OnActorCollision(Actor* other)

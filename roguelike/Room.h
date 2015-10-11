@@ -1,7 +1,7 @@
 #ifndef __ROOM_h
 #define __ROOM_h
 
-#include "Actor.h"
+class Actor;
 
 struct Unit
 {
@@ -11,7 +11,7 @@ struct Unit
   Unit* prev;
 };
 
-enum TileType: byte{
+enum TileType{
   WallNorth,
   WallEast,
   WallSouth,

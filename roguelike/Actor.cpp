@@ -168,8 +168,68 @@ void Actor::Undraw()
 //  Serial.print("Loaded background tiles ");
 //  Serial.print(loadTileCount);
 //  Serial.println(" times.");
-  //TODO: get the actors in the spot where we were
+  
+  short oldTileX = (LastPosX - LevelDrawXOffset) / TileWidth;
+  short oldTileY = (LastPosY - LevelDrawYOffset) / TileHeight;
+  
+  for (int x = oldTileX; x < oldTileX + 1; x++)
+    {    
+      for (int y = oldTileY; y < oldTileY + 1; y++)
+      {        
+        //check all units, see if we collided with this unit
+        Unit* units = CurLevel->CurrentRoom->cells[x][y];
+        while (units != NULL)
+        {          
+          Actor* actor = units->actor;
+          if (actor->UniqueId == UniqueId)
+          {
+            units = units->next;
+            continue;
+          }
 
+          //see if we collided with this actor
+          if (LastPosX + LastWidth > actor->CurPosX
+              && LastPosX < actor->CurPosX + actor->Width
+              && LastPosY + LastHeight > actor->CurPosY
+              && LastPosY < LastPosY + actor->Height)
+          {                     
+          }
+          else
+          {
+            units = units->next;
+            continue;
+          }
+
+          int count = 0;
+          //loop through our pixels
+          for ( int x = 0; x < LastWidth; x++)
+          {
+            for (int y = 0; y < LastHeight; y++)
+            {              
+              //calculate what pixel this is overlapped with the other actor
+              int otherX = actor->CurPosX - x - LevelDrawXOffset;
+              int otherY = actor->CurPosY - y - LevelDrawYOffset;
+
+              if (otherX < 0 || otherX > LastWidth || otherY < 0 || otherY > LastHeight)
+              {
+                //this part of the actor didn't overlap with us
+                continue;
+              }
+              count = count + 1;
+              int index = (y * LastWidth) + x;
+              int otherIndex = (otherY * actor->LastWidth) + otherY;
+              fillBuffer[index] = actor->CurSpritePtr[otherIndex];
+            }            
+          }
+          Serial.print("Collided with ");
+          Serial.print(count);
+          Serial.println(" pixels.");
+
+          units = units->next;
+        }        
+      }
+    }
+    
   //fill in the hole of where we were  
   for ( int x = 0; x < LastWidth; x++)
   {
@@ -193,9 +253,9 @@ void Actor::Undraw()
   delete[] fillBuffer;
 
   long timeTaken = millis() - startTime;
-  Serial.print("Undraw took ");
-  Serial.print(timeTaken);
-  Serial.println(" ms.");
+//  Serial.print(F("Undraw took "));
+//  Serial.print(timeTaken);
+//  Serial.println(F(" ms."));
 }
 
 void Actor::Move(float xDir, float yDir)
@@ -292,10 +352,10 @@ void Actor::UpdatePlaygridLoc()
 void Actor::UpdateMovement()
 {
   uint8_t newDir = 255;
-  bool needToDraw = false;
+  bool weMoved = false;
   if (CurPosX != LastPosX || CurPosY != LastPosY)
   {
-    needToDraw = true;
+    weMoved = true;
 
     uint8_t xMovement, yMovement;
 
@@ -317,7 +377,7 @@ void Actor::UpdateMovement()
   }
 
   LastSpritePtr = CurSpritePtr;
-  UpdateAnimationFrame(newDir);
+  UpdateAnimationFrame(newDir);  
   LastDir = newDir;
 
   LastWidth = Width;
@@ -325,7 +385,7 @@ void Actor::UpdateMovement()
   Width = (short)pgm_read_word_near(CurSpritePtr);
   Height = (short)pgm_read_word_near(CurSpritePtr + 1);
 
-  if (needToDraw)
+  if (weMoved || CurSpritePtr != LastSpritePtr)
   {
     Undraw();
     Draw();
