@@ -15,7 +15,7 @@ class MobBat : public Actor
 
 
   private:
-  
+  bool MovingLeft = false;
 };
 
 #endif

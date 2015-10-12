@@ -111,6 +111,7 @@ bool CheckForCollision(Actor* act1, Actor* act2)
 
 void updateRoom()
 {
+  unsigned long startTime = millis();
   Room* room = CurrentLevel->CurrentRoom;
 
   for (int x = 0; x < LevelWidth; x++)
@@ -125,8 +126,7 @@ void updateRoom()
           if (actor->Type != TypePlayer)
           {
             actor->Update();            
-          }
-          actor->UpdateMovement();
+          }          
 
           Unit* otherUnits = room->cells[x][y];
           while (otherUnits != NULL)
@@ -143,6 +143,11 @@ void updateRoom()
         }        
       }
     }
+
+  unsigned long timeTaken = millis() - startTime;
+//  Serial.print(F("Update room took "));
+//  Serial.print(timeTaken);
+//  Serial.println(F(" ms."));
 }
 
 void SwitchLevel(LevelType type)

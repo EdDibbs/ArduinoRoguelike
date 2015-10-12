@@ -26,6 +26,30 @@ void MobBat::Update()
   short tileX = GetTileX();
   short tileY = GetTileY();
 
+  if (MovingLeft)
+  {
+    if (tileX < 1)
+    {
+      MovingLeft = false;
+    }
+    else
+    {
+      Move(-0.8, 0);
+    }
+  }
+  else
+  {
+    if (tileX > LevelWidth - 3)
+    {
+      MovingLeft = true;
+    }
+    else
+    {
+      Move(0.8,0);
+    }
+  }
+  return;
+
   for (int x = tileX - 4; x < tileX + 4; x++)
   {
     if (x < 0 || x >= LevelWidth) continue;
@@ -49,14 +73,15 @@ void MobBat::Update()
 //          Serial.print(" yDir: ");
 //          Serial.println(yDir);
           Move(xDir, yDir);
+          return;
         }
 
         units = units->next;
       }
     }
   }
-  
-  
+  //we didn't find anything, so don't move
+  Move(0,0);  
 }
 
 void MobBat::UpdateAnimationFrame(uint8_t dir)

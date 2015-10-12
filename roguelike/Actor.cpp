@@ -183,7 +183,7 @@ void Actor::Undraw()
           Actor* actor = units->actor;
           if (actor->UniqueId == UniqueId)
           {
-            units = units->next;
+            units = units->next;            
             continue;
           }
 
@@ -243,7 +243,7 @@ void Actor::Undraw()
       
       //find out where our old sprite was 
       //add 2 for the width and height values
-      int value = (int)pgm_read_word_near(LastSpritePtr + 2 + index);
+      uint16_t value = (uint16_t)pgm_read_word_near(LastSpritePtr + 2 + index);
 
       //if the sprite was transparent at this spot, make the buffer transparent too.
       if (value == 0xF81F)
