@@ -9,7 +9,7 @@ MobBat::MobBat(Level* curLevel) : Actor(curLevel)
   LastSpritePtr = BAT;
   CurSpritePtr = BAT;
   CurAnimationState = StandDown;
-  NumFramesPerAnim = 10;
+  NumFramesPerAnim = 15;
   CurAnimationCount = 0;
   Width = (short)pgm_read_word_near(CurSpritePtr);
   Height = (short)pgm_read_word_near(CurSpritePtr + 1);
@@ -28,10 +28,10 @@ void MobBat::Update()
 
   for (int x = tileX - 4; x < tileX + 4; x++)
   {
-    if (x < 0 || x > LevelWidth) continue;
+    if (x < 0 || x >= LevelWidth) continue;
     for (int y = tileY - 4; y < tileY + 4; y++)
     {
-      if (y < 0 || y > LevelHeight) continue;
+      if (y < 0 || y >= LevelHeight) continue;
 
       //search for the player
       Unit* units = CurLevel->CurrentRoom->cells[x][y];
@@ -44,10 +44,10 @@ void MobBat::Update()
           float xDir = (float)(actor->CurPosX - CurPosX) / 40;
           float yDir = (float)(actor->CurPosY - CurPosY) / 40;
 
-          Serial.print("Bat moving. xDir: ");
-          Serial.print(xDir);
-          Serial.print(" yDir: ");
-          Serial.println(yDir);
+//          Serial.print("Bat moving. xDir: ");
+//          Serial.print(xDir);
+//          Serial.print(" yDir: ");
+//          Serial.println(yDir);
           Move(xDir, yDir);
         }
 
@@ -114,8 +114,7 @@ void MobBat::UpdateAnimationFrame(uint8_t dir)
       break;
 
     case 255: //haven't moved
-      if (CurPosX == LastPosX && CurPosY == LastPosY) CurSpritePtr = BAT;
-      else if (CurSpritePtr == BAT) CurSpritePtr = BAT_IDLE_1;
+      if (CurSpritePtr == BAT) CurSpritePtr = BAT_IDLE_1;
       else if (CurSpritePtr == BAT_IDLE_1) CurSpritePtr = BAT_IDLE_2;
       else CurSpritePtr = BAT; 
 

@@ -101,7 +101,7 @@ bool CheckForCollision(Actor* act1, Actor* act2)
   if (act1->CurPosX + act1->Width > act2->CurPosX
       && act1->CurPosX < act2->CurPosX + act2->Width
       && act1->CurPosY + act1->Height > act2->CurPosY
-      && act1->CurPosY < act1->CurPosY + act2->Height)
+      && act1->CurPosY < act2->CurPosY + act2->Height)
       {
         return true;
       }
@@ -124,8 +124,9 @@ void updateRoom()
           Actor* actor = units->actor;
           if (actor->Type != TypePlayer)
           {
-            actor->Update();
+            actor->Update();            
           }
+          actor->UpdateMovement();
 
           Unit* otherUnits = room->cells[x][y];
           while (otherUnits != NULL)

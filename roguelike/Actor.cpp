@@ -165,19 +165,19 @@ void Actor::Undraw()
       delete[] tileSprite;
       tileSprite = NULL;
   }
-//  Serial.print("Loaded background tiles ");
-//  Serial.print(loadTileCount);
-//  Serial.println(" times.");
   
   short oldTileX = (LastPosX - LevelDrawXOffset) / TileWidth;
   short oldTileY = (LastPosY - LevelDrawYOffset) / TileHeight;
   
-  for (int x = oldTileX; x < oldTileX + 1; x++)
+  for (int tileX = oldTileX - 2; tileX < oldTileX + 2; tileX++)
     {    
-      for (int y = oldTileY; y < oldTileY + 1; y++)
+      if (tileX < 0 || tileX >= LevelWidth) continue;
+      for (int tileY = oldTileY - 2; tileY < oldTileY + 2; tileY++)
       {        
+        if (tileY < 0 || tileY >= LevelHeight) continue;
+        
         //check all units, see if we collided with this unit
-        Unit* units = CurLevel->CurrentRoom->cells[x][y];
+        Unit* units = CurLevel->CurrentRoom->cells[tileX][tileY];
         while (units != NULL)
         {          
           Actor* actor = units->actor;
@@ -191,7 +191,7 @@ void Actor::Undraw()
           if (LastPosX + LastWidth > actor->CurPosX
               && LastPosX < actor->CurPosX + actor->Width
               && LastPosY + LastHeight > actor->CurPosY
-              && LastPosY < LastPosY + actor->Height)
+              && LastPosY < actor->CurPosY + actor->Height)
           {                     
           }
           else
@@ -199,7 +199,7 @@ void Actor::Undraw()
             units = units->next;
             continue;
           }
-
+                    
           int count = 0;
           //loop through our pixels
           for ( int x = 0; x < LastWidth; x++)
@@ -207,23 +207,27 @@ void Actor::Undraw()
             for (int y = 0; y < LastHeight; y++)
             {              
               //calculate what pixel this is overlapped with the other actor
-              int otherX = actor->CurPosX - x - LevelDrawXOffset;
-              int otherY = actor->CurPosY - y - LevelDrawYOffset;
+              int otherX = LastPosX + x - actor->CurPosX;
+              int otherY = LastPosY + y - actor->CurPosY;
 
-              if (otherX < 0 || otherX > LastWidth || otherY < 0 || otherY > LastHeight)
+              if (otherX < 0 || otherX > actor->Width || otherY < 0 || otherY > actor->Height)
               {
                 //this part of the actor didn't overlap with us
                 continue;
               }
+              
               count = count + 1;
               int index = (y * LastWidth) + x;
-              int otherIndex = (otherY * actor->LastWidth) + otherY;
-              fillBuffer[index] = actor->CurSpritePtr[otherIndex];
+              int otherIndex = (otherY * actor->Width) + otherX;
+
+              //check if the other actor had pixels in this spot, if not draw the ground we loaded before.
+              uint16_t value = (uint16_t)pgm_read_word_near(actor->CurSpritePtr + 2 + otherIndex);
+              if (value != 0xF81F)
+              {
+                fillBuffer[index] = value;
+              }
             }            
           }
-          Serial.print("Collided with ");
-          Serial.print(count);
-          Serial.println(" pixels.");
 
           units = units->next;
         }        
@@ -311,7 +315,7 @@ void Actor::UpdatePlaygridLoc()
       {
         Unit* unit = CurLevel->CurrentRoom->cells[oldX][oldY];
 
-        //try to find us (a unit with this id
+        //try to find us (a unit with this id)
         while (unit != NULL && unit->actor != NULL && unit->actor->UniqueId != this->UniqueId)
         {
           unit = unit->next;
