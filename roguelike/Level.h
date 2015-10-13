@@ -39,7 +39,6 @@ class Level
   uint16_t* NorthSouthWallTile;
   uint16_t* WestEastWallTile;
   uint16_t* CornerTile;
-
   uint16_t* NorthSouthDoorTile;
   uint16_t* WestEastDoorTile;
 

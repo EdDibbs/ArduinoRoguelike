@@ -39,6 +39,7 @@ unsigned long count = 0;
 unsigned long lastFPS = 0;
 
 bool isRunning = false;
+bool lostGame = false;
 long lastInputMeasure;
 
 int lastHPdraw = -1;
@@ -55,31 +56,15 @@ void setup() {
   //init the screen
   Screen* screen = &Screen::Instance();
   screen->Init();
-  __SetCursor(3, __ScreenHeight()/2);
-  __SetTextColor(0xFFFF);
-  _tft.print(F("Insert splash screen here"));
-
-  delay(5000);
-  __FillScreen(0x0000);
-  
   //setup serial communication
   Serial.begin(115200);
-
-  SwitchLevel(Jungle);
   
-  int playerX = (screen->Width() / 2) - (player->GetWidth() / 2);
-  int playerY = (screen->Height() / 2) - (player->GetHeight() / 2);
-  player = new Player(CurrentLevel);
-  player->SetPosition(playerX, playerY);
-
-  //draw status frame
-  screen->DrawRect(0,0,160,24,ST7735_BLACK); 
-  lastInputMeasure = startTime = millis();
-  isRunning = true;
+  StartNewGame();
 }
 
 
-void loop() {  
+void loop() {
+  
   if (isRunning)
   {     
     measureFPS();
@@ -93,8 +78,50 @@ void loop() {
       updateRoom();
       lastInputMeasure = millis();
     }
+
+    if (player->HP <= 0)
+    {
+      isRunning = false;
+      lostGame = true;
+    }
+  }
+
+  if (lostGame)
+  {
+    Serial.println("Game Over!");
+    printGameOverScreen();
+    lostGame = false; //don't keep drawing this text
+
+    delay(1000);    
+    //StartNewGame();
+    //start new game currently broken
   }
 }
+
+void StartNewGame()
+{
+  Serial.println("Starting new game...");
+  __SetCursor(3, __ScreenHeight()/2);
+  __SetTextColor(0xFFFF);
+  _tft.print(F("Insert splash screen here"));  
+  
+  delay(5000);
+  __FillScreen(0x0000);
+
+  SwitchLevel(Jungle);
+  
+  int playerX = (__ScreenWidth() / 2) - (player->GetWidth() / 2);
+  int playerY = (__ScreenHeight() / 2) - (player->GetHeight() / 2);
+  player = new Player(CurrentLevel);
+  player->SetPosition(playerX, playerY);  
+  
+  //draw status frame
+  __DrawRect(0,0,160,24,ST7735_BLACK); 
+  lastInputMeasure = startTime = millis();
+  isRunning = true;
+  lostGame = false;
+}
+
 bool CheckForCollision(Actor* act1, Actor* act2)
 {
   //AABB checking
@@ -123,10 +150,7 @@ void updateRoom()
         while (units != NULL)
         {          
           Actor* actor = units->actor;
-          if (actor->Type != TypePlayer)
-          {
-            actor->Update();            
-          }          
+          actor->Update();
 
           Unit* otherUnits = room->cells[x][y];
           while (otherUnits != NULL)
@@ -145,9 +169,9 @@ void updateRoom()
     }
 
   unsigned long timeTaken = millis() - startTime;
-//  Serial.print(F("Update room took "));
-//  Serial.print(timeTaken);
-//  Serial.println(F(" ms."));
+  Serial.print(F("Update room took "));
+  Serial.print(timeTaken);
+  Serial.println(F(" ms."));
 }
 
 void SwitchLevel(LevelType type)
@@ -205,7 +229,8 @@ void drawHearts()
     Screen::Instance().Draw(drawXPos, drawYPos, heartWidth, heartHeight, pixels);
   }
   
-  
+  delete[] pixelsEmptHeart;
+  delete[] pixelsFullHeart;
 }
 
 void movePlayer()
@@ -242,6 +267,43 @@ void measureFreeMem()
     Serial.println(F("Out of memory!. Holding the program to prevent damage."));
     isRunning = false;
   }
+}
+
+void printGameOverScreen()
+{
+  bool firstDraw = true;
+  int fadeCount = 0x0F;
+  int width = __ScreenWidth();
+  int height = __ScreenHeight();
+  __FillScreen(0x0000);
+ 
+  delay(1000);
+  char* gameOverText = "Game Over...\0";
+
+  for (int fade = fadeCount; fade >= 0; fade--)
+  {
+    uint16_t color = _tft.color565((fade << 4) | fade, (fade << 4) | fade, (fade << 4) | fade);
+    __SetCursor(30, height/2);
+    __SetTextColor(color);
+    
+    for (int i = 0; i < 12; i++)
+    {
+      _tft.print(gameOverText[i]);
+
+      if (firstDraw)
+      {        
+        delay(200);        
+        if (i > 8) delay(200);        
+      }
+    }
+    if (firstDraw)
+    {
+      delay(2700);
+      firstDraw = false;
+    }
+    delay(300);
+  }
+  
 }
 
 void printMem(int freeMem, uint64_t color)

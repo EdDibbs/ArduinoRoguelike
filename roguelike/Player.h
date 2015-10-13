@@ -17,7 +17,10 @@ class Player : public Actor
     
   private:
     
-    
+    long invulnTimeRemaining;
+    long lastInvulnTick;
+    short invulnFlashCount;
+    bool invulnInvisible = false;
     
 };
 

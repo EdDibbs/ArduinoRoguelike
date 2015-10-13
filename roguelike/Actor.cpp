@@ -159,7 +159,7 @@ void Actor::Undraw()
       }
     }
   }
-  
+
   if (tileSprite != NULL) 
   {
       delete[] tileSprite;
@@ -257,9 +257,9 @@ void Actor::Undraw()
   delete[] fillBuffer;
 
   long timeTaken = millis() - startTime;
-//  Serial.print(F("Undraw took "));
-//  Serial.print(timeTaken);
-//  Serial.println(F(" ms."));
+  Serial.print(F("Undraw took "));
+  Serial.print(timeTaken);
+  Serial.println(F(" ms."));
 }
 
 void Actor::Move(float xDir, float yDir)
@@ -391,14 +391,15 @@ void Actor::UpdateMovement()
   }
 
   LastSpritePtr = CurSpritePtr;
-  UpdateAnimationFrame(newDir);  
-  LastDir = newDir;
+  UpdateAnimationFrame(newDir);
+  if (newDir != 255) LastDir = newDir;
 
   LastWidth = Width;
   LastHeight = Height;
   Width = (short)pgm_read_word_near(CurSpritePtr);
   Height = (short)pgm_read_word_near(CurSpritePtr + 1);
-
+  
+  
   if (weMoved || CurSpritePtr != LastSpritePtr)
   {
     Undraw();

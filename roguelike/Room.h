@@ -30,8 +30,11 @@ enum TileType{
   CornerSE,
 };
 
-struct Room
+class Room
 {
+  public:
+  Room();
+  ~Room();
   static const int GRID_WIDTH = 13;
   static const int GRID_HEIGHT = 8;
   
