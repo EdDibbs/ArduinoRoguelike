@@ -325,6 +325,11 @@ void Actor::UpdatePlaygridLoc()
         if (unit != NULL && unit->actor != NULL && unit->actor->UniqueId == this->UniqueId)
         {
           //break the link to this actor
+          if (unit->next != NULL)
+          {
+            unit->next->prev = unit->prev;
+          }
+          
           if (unit->prev != NULL)
           {
             unit->prev->next = unit->next;
@@ -333,6 +338,7 @@ void Actor::UpdatePlaygridLoc()
           {
             CurLevel->CurrentRoom->cells[oldX][oldY] = unit->next;
           }
+          
           //free the memory
           delete unit;
         }
@@ -345,6 +351,10 @@ void Actor::UpdatePlaygridLoc()
         newUnit->actor = this;
         newUnit->prev = NULL;
         newUnit->next = CurLevel->CurrentRoom->cells[newX][newY];
+        if (newUnit->next != NULL)
+        {
+          newUnit->next->prev = newUnit;
+        }
 
         CurLevel->CurrentRoom->cells[newX][newY] = newUnit;
       }
