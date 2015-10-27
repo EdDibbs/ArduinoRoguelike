@@ -15,8 +15,8 @@ MobBat::MobBat(Level* curLevel) : Actor(curLevel)
   Height = (short)pgm_read_word_near(CurSpritePtr + 1);
   Type = TypeMob;
   
-  HP = 4;
-  MaxHP = 4;
+  HP = 1;
+  MaxHP = 1;
   MoveSpeed = 3;
 }
 
@@ -48,38 +48,40 @@ void MobBat::Update()
       Move(0.8,0);
     }
   }
-  return;
+  
+//  for (int x = tileX - 4; x < tileX + 4; x++)
+//  {
+//    if (x < 0 || x >= LevelWidth) continue;
+//    for (int y = tileY - 4; y < tileY + 4; y++)
+//    {
+//      if (y < 0 || y >= LevelHeight) continue;
+//
+//      //search for the player
+//      Unit* units = CurLevel->CurrentRoom->cells[x][y];
+//      while (units != NULL)
+//      {
+//        Actor* actor = units->actor;
+//        if (actor->Type == TypePlayer)
+//        {          
+//          //chase the player
+//          float xDir = (float)(actor->CurPosX - CurPosX) / 40;
+//          float yDir = (float)(actor->CurPosY - CurPosY) / 40;
+//
+////          Serial.print("Bat moving. xDir: ");
+////          Serial.print(xDir);
+////          Serial.print(" yDir: ");
+////          Serial.println(yDir);
+//          Move(xDir, yDir);
+//          return;
+//        }
+//
+//        units = units->next;
+//      }
+//    }
+//  }
 
-  for (int x = tileX - 4; x < tileX + 4; x++)
-  {
-    if (x < 0 || x >= LevelWidth) continue;
-    for (int y = tileY - 4; y < tileY + 4; y++)
-    {
-      if (y < 0 || y >= LevelHeight) continue;
-
-      //search for the player
-      Unit* units = CurLevel->CurrentRoom->cells[x][y];
-      while (units != NULL)
-      {
-        Actor* actor = units->actor;
-        if (actor->Type == TypePlayer)
-        {          
-          //chase the player
-          float xDir = (float)(actor->CurPosX - CurPosX) / 40;
-          float yDir = (float)(actor->CurPosY - CurPosY) / 40;
-
-//          Serial.print("Bat moving. xDir: ");
-//          Serial.print(xDir);
-//          Serial.print(" yDir: ");
-//          Serial.println(yDir);
-          Move(xDir, yDir);
-          return;
-        }
-
-        units = units->next;
-      }
-    }
-  }
+  if (HP <= 0) FlaggedForDeletion = true;
+  
   //we didn't find anything, so don't move
   Move(0,0);  
 }

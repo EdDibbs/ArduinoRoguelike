@@ -5,11 +5,15 @@
 Actor::Actor(Level* curLevel)
 {
   CurLevel = curLevel;
+  FlaggedForDeletion = false;
   UniqueId = GetUniqueId();
-  LastPosX = CurPosX = SCREEN_WIDTH / 2;
-  LastPosY = CurPosY = SCREEN_HEIGHT /2;
+  LastPosX = 0;
+  CurPosX = SCREEN_WIDTH / 2;
+  LastPosY = 0;
+  CurPosY = SCREEN_HEIGHT /2;
   LastWidth= Width = 0;
-  LastHeight= Height = 0;  
+  LastHeight= Height = 0;
+  UpdatePlaygridLoc();
 }
 
 void Actor::Draw()
@@ -257,9 +261,9 @@ void Actor::Undraw()
   delete[] fillBuffer;
 
   long timeTaken = millis() - startTime;
-  Serial.print(F("Undraw took "));
-  Serial.print(timeTaken);
-  Serial.println(F(" ms."));
+//  Serial.print(F("Undraw took "));
+//  Serial.print(timeTaken);
+//  Serial.println(F(" ms."));
 }
 
 void Actor::Move(float xDir, float yDir)
@@ -280,12 +284,9 @@ void Actor::Move(float xDir, float yDir)
   //check against map for collisions
 
   //move back to where we were in case of collisions
-
-  //move us in the playfield if necessary
-  UpdatePlaygridLoc();
-
   UpdateMovement();
 }
+
 void Actor::UpdatePlaygridLoc()
 {
   if (CurLevel != NULL && CurLevel->CurrentRoom != NULL)
@@ -311,7 +312,9 @@ void Actor::UpdatePlaygridLoc()
 //      Serial.println("]...");
 
       //take us out of the old grid
-      if (CurLevel->CurrentRoom->cells != NULL && CurLevel->CurrentRoom->cells[oldX][oldY] != NULL)
+      if (CurLevel->CurrentRoom->cells != NULL
+      && oldX >= 0 && oldX < LevelWidth && oldY >= 0 && oldY < LevelHeight
+      && CurLevel->CurrentRoom->cells[oldX][oldY] != NULL)
       {
         Unit* unit = CurLevel->CurrentRoom->cells[oldX][oldY];
 
@@ -343,6 +346,10 @@ void Actor::UpdatePlaygridLoc()
           delete unit;
         }
       }
+      else
+      {
+        Serial.println("Not a valid old old tile.");
+      }
 
       //put us in the new grid square
       if (CurLevel->CurrentRoom->cells != NULL)
@@ -356,11 +363,12 @@ void Actor::UpdatePlaygridLoc()
           newUnit->next->prev = newUnit;
         }
 
-        CurLevel->CurrentRoom->cells[newX][newY] = newUnit;
+        CurLevel->CurrentRoom->cells[newX][newY] = newUnit;        
       }
 
     }
-  }
+  } 
+  
 }
 
 void Actor::UpdateMovement()
@@ -416,6 +424,6 @@ void Actor::SetPosition(int xpos, int ypos)
   CurPosX = xpos;
   CurPosY = ypos;
   
-  //UpdatePlaygridLoc();
   UpdateMovement();
+  UpdatePlaygridLoc();  
 }

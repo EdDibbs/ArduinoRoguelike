@@ -1,10 +1,13 @@
 #ifndef __ROOM_h
 #define __ROOM_h
+#include <Arduino.h>
 
 class Actor;
 
 struct Unit
 {
+  ~Unit(){} 
+  
   Actor* actor;
   
   Unit* next;
@@ -46,6 +49,8 @@ class Room
   Unit* cells[GRID_WIDTH][GRID_HEIGHT];  
   TileType* Tiles;
   bool FlaggedForDeletion;
+
+  void RemoveActor(uint32_t id);
 };
 
 #endif

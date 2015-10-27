@@ -11,12 +11,12 @@ class Player : public Actor
     void Update();
     void UpdateAnimationFrame(uint8_t dir);
     void OnActorCollision(Actor* other);
-    
 
 
     
   private:
-    
+    void pollJoysticks();
+    void attack(uint8_t dir);
     long invulnTimeRemaining;
     long lastInvulnTick;
     short invulnFlashCount;

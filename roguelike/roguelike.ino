@@ -28,10 +28,7 @@
 ///////////////////////////////////////
 
 PDQ_ST7735 _tft; //global access to the screen needed by the library
-#define JOYSTICK_LEFT_X A2
-#define JOYSTICK_LEFT_Y A3
-#define JOYSTICK_RIGHT_X A6
-#define JOYSTICK_RIGHT_Y A7
+
 
 //clock stuff
 long startTime;
@@ -73,8 +70,7 @@ void loop() {
   
     if (millis() - lastInputMeasure >= 1000/60)
     {
-      measureFreeMem();
-      movePlayer();
+      measureFreeMem();      
       updateRoom();
       lastInputMeasure = millis();
     }
@@ -110,11 +106,8 @@ void StartNewGame()
 
   SwitchLevel(Jungle);
   
-  int playerX = (__ScreenWidth() / 2) - (player->GetWidth() / 2);
-  int playerY = (__ScreenHeight() / 2) - (player->GetHeight() / 2);
   player = new Player(CurrentLevel);
-  player->SetPosition(playerX, playerY);  
-  
+    
   //draw status frame
   __DrawRect(0,0,160,24,ST7735_BLACK); 
   lastInputMeasure = startTime = millis();
@@ -140,38 +133,88 @@ void updateRoom()
 {
   unsigned long startTime = millis();
   Room* room = CurrentLevel->CurrentRoom;
+  int updateCount = 0;
 
   for (int x = 0; x < LevelWidth; x++)
-    {    
-      for (int y = 0; y < LevelHeight; y++)
-      {        
-        //update all units, except player
-        Unit* units = room->cells[x][y];
-        while (units != NULL)
-        {          
-          Actor* actor = units->actor;
-          actor->Update();
+  {    
+    for (int y = 0; y < LevelHeight; y++)
+    {        
+      //update all units
+      Unit* units = room->cells[x][y];
+      while (units != NULL)
+      {              
+        Actor* actor = units->actor;
+        actor->MovedThisFrame = false;
+        actor->Update();
+        updateCount++;
 
-          Unit* otherUnits = room->cells[x][y];
-          while (otherUnits != NULL)
-          {
-            //do we collide with this actor?
-            if (actor->UniqueId != otherUnits->actor->UniqueId && CheckForCollision(actor, otherUnits->actor))
-            {
-              actor->OnActorCollision(otherUnits->actor);
-            }
-            otherUnits = otherUnits->next;
-          }
+        if (actor->FlaggedForDeletion)
+        {
+          Serial.print(actor->UniqueId);
+          Serial.print(": Deleting...");
+          Serial.flush();
 
-          units = units->next;
-        }        
-      }
+          actor->Undraw();
+          units = units->next;          
+          room->RemoveActor(actor->UniqueId);
+          Serial.print("Removed from room...");
+          Serial.flush();
+          
+          //delete actor;
+          actor = NULL;
+          Serial.println("Done.");
+          Serial.flush();
+          continue;
+        }
+              
+
+        units = units->next;
+      }        
     }
+  }
+
+  for (int x = 0; x < LevelWidth; x++)
+  {    
+    for (int y = 0; y < LevelHeight; y++)
+    {        
+      //update all units
+      Unit* units = room->cells[x][y];
+      while (units != NULL)
+      {  
+        Actor* actor = units->actor;
+        if (!actor->MovedThisFrame)
+        {
+          actor->UpdatePlaygridLoc();
+          actor->MovedThisFrame = true;
+        }
+
+        Unit* otherUnits = room->cells[x][y];
+        while (otherUnits != NULL)
+        {
+          //do we collide with this actor?
+          if (actor->UniqueId != otherUnits->actor->UniqueId && CheckForCollision(actor, otherUnits->actor))
+          {
+            actor->OnActorCollision(otherUnits->actor);
+          }
+          otherUnits = otherUnits->next;
+        }
+        
+        units = units->next;
+      }        
+    }
+  }
+
+    
 
   unsigned long timeTaken = millis() - startTime;
-  Serial.print(F("Update room took "));
-  Serial.print(timeTaken);
-  Serial.println(F(" ms."));
+//  Serial.print(updateCount);
+//  Serial.println(" updates called.");
+//  Serial.flush();
+
+
+//  Serial.print(F("Update room took "));
+//  Serial.print(timeTaken);
+//  Serial.println(F(" ms."));
 }
 
 void SwitchLevel(LevelType type)
@@ -233,22 +276,6 @@ void drawHearts()
   delete[] pixelsFullHeart;
 }
 
-void movePlayer()
-{
-  float yread = analogRead(JOYSTICK_LEFT_Y);
-  float xread = analogRead(JOYSTICK_LEFT_X);
-  
-  float UpDown = (( yread / 1012.0) - 0.5) * -1;
-  float LeftRight = ((xread / 970.0) - 0.5 ) * -1;
-  
-//  Serial.print("Y: ");
-//  Serial.print(yread);
-//  Serial.print(" X: ");
-//  Serial.println(xread);
-
-  player->Move(LeftRight, UpDown);
-}
-
 void measureFreeMem()
 {
   int freeMem = freeMemory();
@@ -283,7 +310,7 @@ void printGameOverScreen()
   for (int fade = fadeCount; fade >= 0; fade--)
   {
     uint16_t color = _tft.color565((fade << 4) | fade, (fade << 4) | fade, (fade << 4) | fade);
-    __SetCursor(30, height/2);
+    __SetCursor(width/2 - 20, height/2);
     __SetTextColor(color);
     
     for (int i = 0; i < 12; i++)

@@ -36,6 +36,7 @@ class Actor
 {
   public:
     Actor(Level* curLevel) ;
+    ~Actor() { Serial.print("~Actor() called for : "); Serial.println(UniqueId); };
     ActorType Type;
     
     void Draw();
@@ -70,6 +71,8 @@ class Actor
     int MaxHP;    
 
     uint32_t UniqueId;
+    bool MovedThisFrame = false;
+    bool FlaggedForDeletion = false;
   protected:
     Level* CurLevel; //used for rendering actors on top of the terrian correctly
     

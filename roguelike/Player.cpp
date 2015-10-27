@@ -1,6 +1,12 @@
 #include "Player.h"
 #include "Screen.h"
 #include "SpriteDefinitions.h"
+#include "AttackPlayer.h"
+
+#define JOYSTICK_LEFT_X A2
+#define JOYSTICK_LEFT_Y A3
+#define JOYSTICK_RIGHT_X A6
+#define JOYSTICK_RIGHT_Y A7
 
 Player::Player(Level* curLevel) : Actor(curLevel)
 {
@@ -18,10 +24,48 @@ Player::Player(Level* curLevel) : Actor(curLevel)
   MaxHP = 3;
   MoveSpeed = 5;
 }
+void Player::pollJoysticks()
+{
+  float leftYread = analogRead(JOYSTICK_LEFT_Y);
+  float leftXread = analogRead(JOYSTICK_LEFT_X);
+  
+  float leftUpDown = (( leftYread / 1012.0) - 0.5) * -1;
+  float leftLeftRight = ((leftXread / 970.0) - 0.5 ) * -1;
+
+
+  Move(leftLeftRight, leftUpDown);
+
+  float rightYread = analogRead(JOYSTICK_RIGHT_Y);
+  float rightXread = analogRead(JOYSTICK_RIGHT_X);
+  
+  float rightUpDown = (( (rightYread) / 1020.0) - 0.5) * -1;
+  float rightLeftRight = (((rightXread) / 1020.0) - 0.5 );
+
+  float upDownAbs = rightUpDown > 0 ? rightUpDown : rightUpDown * -1;
+  float leftRightAbs = rightLeftRight > 0 ? rightLeftRight: rightLeftRight* -1;
+
+//  Serial.print("Y: ");
+//  Serial.print(rightUpDown);
+//  Serial.print(" X: ");
+//  Serial.println(rightLeftRight);
+  
+  //find the greater direction, attack in that direction
+  if (upDownAbs > leftRightAbs)
+  {
+    if (rightUpDown > 0.3) attack(0);
+    else if (rightUpDown < -0.3) attack(2);
+  }
+  else
+  {
+    if (rightLeftRight > 0.3) attack(1);
+    else if (rightLeftRight < -0.3) attack(3);
+  }
+  
+}
 
 void Player::Update()
-{
-  //non-movement logic goes here
+{  
+  //handle our invulnerability flashing
   if (invulnTimeRemaining > 0.0)
   {
     invulnTimeRemaining -= millis() - lastInvulnTick;
@@ -39,14 +83,23 @@ void Player::Update()
       invulnInvisible = false;
     }
   }
+  
+  pollJoysticks();
+}
 
+void Player::attack(uint8_t dir)
+{
+  AttackPlayer* attack;
+  
+  attack = new AttackPlayer(CurLevel, dir);
+  attack->CurPosX = CurPosX;
+  attack->CurPosY = CurPosY;  
 }
 
 void Player::UpdateAnimationFrame(uint8_t dir)
 {
   if (invulnInvisible)
   {
-    Serial.println("Invis");
     LastSpritePtr = CurSpritePtr;    
     CurSpritePtr = INVISIBLE;
     return;
