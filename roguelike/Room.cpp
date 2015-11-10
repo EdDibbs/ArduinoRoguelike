@@ -13,6 +13,8 @@ Room::Room()
 
 Room::~Room()
 {
+  Serial.println("Destructing room...");
+  
   for (int x = 0; x < GRID_WIDTH; x++)
   {
     for (int y = 0; y < GRID_HEIGHT; y++)
@@ -39,8 +41,24 @@ Room::~Room()
   }
 }
 
+void Room::PrintCell(Unit* head)
+{
+  Unit* iter = head;
+  while (iter != NULL)
+  {      
+    Serial.print((unsigned int) iter);  
+    iter = iter->next;
+    if (iter != NULL)
+      Serial.print("->");
+  }
+  
+  Serial.println();
+}
+
 void Room::RemoveActor(uint32_t id)
 {
+  int count = 0;
+  
   for (int x = 0; x < GRID_WIDTH; x++)
   {
     for (int y = 0; y < GRID_HEIGHT; y++)
@@ -49,7 +67,7 @@ void Room::RemoveActor(uint32_t id)
       while(unit != NULL)
       {
         if(unit->actor->UniqueId == id)
-        {
+        {        
           //break the link to this actor
           if (unit->next != NULL)
           {
@@ -68,13 +86,21 @@ void Room::RemoveActor(uint32_t id)
           //free the memory          
           delete unit; 
           unit = NULL; 
-          Serial.print("Removed unit from room. ");        
-          return;
+          count++;
+
+          //return;
         }
-        unit = unit->next;
+
+        unit = unit->next;        
       }
      
     }
   }
+  
+  Serial.print("Removed ");
+  Serial.print(count);
+  Serial.println(" instances of actor.");
+  Serial.flush();
+  
 }
 

@@ -36,7 +36,7 @@ class Actor
 {
   public:
     Actor(Level* curLevel) ;
-    ~Actor() { Serial.print("~Actor() called for : "); Serial.println(UniqueId); };
+    virtual ~Actor() { };
     ActorType Type;
     
     void Draw();

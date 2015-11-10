@@ -158,22 +158,22 @@ void Player::UpdateAnimationFrame(uint8_t dir)
       switch(LastDir)
       {
         case 0: //up
-          CurSpritePtr = PC_WALK_UP_1;          
+          CurSpritePtr = PC_UP;          
           CurAnimationState = StandUp;
           break;
           
         case 1: //right
-          CurSpritePtr = PC_WALK_RIGHT_1;       
+          CurSpritePtr = PC_RIGHT;       
           CurAnimationState = StandRight; 
           break;
           
         case 2: //down
-          CurSpritePtr = PC_WALK_DOWN_1;       
+          CurSpritePtr = PC_DOWN;       
           CurAnimationState = StandDown;
           break;
           
         case 3: //left
-          CurSpritePtr = PC_WALK_LEFT_1;       
+          CurSpritePtr = PC_LEFT;       
           CurAnimationState = StandLeft;
           break;
       }

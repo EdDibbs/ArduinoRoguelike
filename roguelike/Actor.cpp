@@ -1,6 +1,7 @@
 #include "Actor.h"
 #include "Screen.h"
 #include "Level.h"
+#include "SpriteDefinitions.h"
 
 Actor::Actor(Level* curLevel)
 {
@@ -214,7 +215,7 @@ void Actor::Undraw()
               int otherX = LastPosX + x - actor->CurPosX;
               int otherY = LastPosY + y - actor->CurPosY;
 
-              if (otherX < 0 || otherX > actor->Width || otherY < 0 || otherY > actor->Height)
+              if (otherX < 0 || otherX >= actor->Width || otherY < 0 || otherY >= actor->Height)
               {
                 //this part of the actor didn't overlap with us
                 continue;
@@ -223,6 +224,22 @@ void Actor::Undraw()
               count = count + 1;
               int index = (y * LastWidth) + x;
               int otherIndex = (otherY * actor->Width) + otherX;
+
+              if (otherIndex >= 2 + (actor->Width * actor->Height)) 
+              {
+                Serial.print("Other index calculated incorrectly! OtherIndex: ");
+                Serial.print(otherIndex);
+                Serial.print("\totherX: ");
+                Serial.print(otherX);
+                Serial.print("\totherY: ");
+                Serial.print(otherY);
+                Serial.print("\theight: ");
+                Serial.print(actor->Height);
+                Serial.print("\twidth: ");
+                Serial.println(actor->Width);
+                
+                continue;
+              }
 
               //check if the other actor had pixels in this spot, if not draw the ground we loaded before.
               uint16_t value = (uint16_t)pgm_read_word_near(actor->CurSpritePtr + 2 + otherIndex);
@@ -313,8 +330,7 @@ void Actor::UpdatePlaygridLoc()
 
       //take us out of the old grid
       if (CurLevel->CurrentRoom->cells != NULL
-      && oldX >= 0 && oldX < LevelWidth && oldY >= 0 && oldY < LevelHeight
-      && CurLevel->CurrentRoom->cells[oldX][oldY] != NULL)
+      && oldX >= 0 && oldX < LevelWidth && oldY >= 0 && oldY < LevelHeight)
       {
         Unit* unit = CurLevel->CurrentRoom->cells[oldX][oldY];
 
@@ -345,10 +361,18 @@ void Actor::UpdatePlaygridLoc()
           //free the memory
           delete unit;
         }
+        else
+        {
+          Serial.print("Couldn't find ourselves in our old tile location (");
+          Serial.print(oldX);
+          Serial.print(", ");
+          Serial.print(oldY);
+          Serial.println(")!");
+        }
       }
       else
       {
-        Serial.println("Not a valid old old tile.");
+        Serial.println(F("Not a valid old old tile."));
       }
 
       //put us in the new grid square
@@ -404,8 +428,8 @@ void Actor::UpdateMovement()
 
   LastWidth = Width;
   LastHeight = Height;
-  Width = (short)pgm_read_word_near(CurSpritePtr);
-  Height = (short)pgm_read_word_near(CurSpritePtr + 1);
+  Width = pgm_read_word_near(CurSpritePtr);
+  Height = pgm_read_word_near(CurSpritePtr + 1);
   
   
   if (weMoved || CurSpritePtr != LastSpritePtr)

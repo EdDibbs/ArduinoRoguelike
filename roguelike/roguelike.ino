@@ -50,11 +50,14 @@ void setup() {
   //sleep for a second in case we need to do something
   delay(500);
   
+  //setup serial communication  
+  Serial.begin(115200);
+  Serial.println(F("Setting up..."));
+  
   //init the screen
   Screen* screen = &Screen::Instance();
   screen->Init();
-  //setup serial communication
-  Serial.begin(115200);
+  
   
   StartNewGame();
 }
@@ -84,7 +87,7 @@ void loop() {
 
   if (lostGame)
   {
-    Serial.println("Game Over!");
+    Serial.println(F("Game Over!"));
     printGameOverScreen();
     lostGame = false; //don't keep drawing this text
 
@@ -96,7 +99,7 @@ void loop() {
 
 void StartNewGame()
 {
-  Serial.println("Starting new game...");
+  Serial.println(F("Starting new game..."));
   __SetCursor(3, __ScreenHeight()/2);
   __SetTextColor(0xFFFF);
   _tft.print(F("Insert splash screen here"));  
@@ -134,49 +137,60 @@ void updateRoom()
   unsigned long startTime = millis();
   Room* room = CurrentLevel->CurrentRoom;
   int updateCount = 0;
-
+  
   for (int x = 0; x < LevelWidth; x++)
   {    
     for (int y = 0; y < LevelHeight; y++)
-    {        
+    {       
+//      Serial.print("Checking (");
+//      Serial.print(x);
+//      Serial.print(", ");
+//      Serial.print(y);
+//      Serial.println(")...");
+//      Serial.flush(); 
+//      
+      if (room == NULL)
+      {
+        Serial.println(F("ROOM IS NULL IN updateRoom()"));        
+        Serial.flush();
+        continue;
+      }
+      
       //update all units
       Unit* units = room->cells[x][y];
       while (units != NULL)
       {              
         Actor* actor = units->actor;
+        if (actor == NULL)
+        {
+          Serial.println(F("FOUND A UNIT WITH ACTOR == NULL"));
+          Serial.flush();
+          units = units->next;
+          continue;
+        }
+        
         actor->MovedThisFrame = false;
         actor->Update();
         updateCount++;
 
-        if (actor->FlaggedForDeletion)
-        {
-          Serial.print(actor->UniqueId);
-          Serial.print(": Deleting...");
-          Serial.flush();
-
-          actor->Undraw();
-          units = units->next;          
-          room->RemoveActor(actor->UniqueId);
-          Serial.print("Removed from room...");
-          Serial.flush();
-          
-          //delete actor;
-          actor = NULL;
-          Serial.println("Done.");
-          Serial.flush();
-          continue;
-        }
-              
-
         units = units->next;
-      }        
+        if (actor->FlaggedForDeletion)
+        {       
+          actor->Undraw();          
+          room->RemoveActor(actor->UniqueId);
+          
+          delete actor;
+          actor = NULL;
+        }     
+
+      }
     }
   }
-
+  
   for (int x = 0; x < LevelWidth; x++)
   {    
     for (int y = 0; y < LevelHeight; y++)
-    {        
+    {          
       //update all units
       Unit* units = room->cells[x][y];
       while (units != NULL)
@@ -200,21 +214,23 @@ void updateRoom()
         }
         
         units = units->next;
-      }        
+      }
+   
     }
+
   }
 
-    
 
   unsigned long timeTaken = millis() - startTime;
 //  Serial.print(updateCount);
 //  Serial.println(" updates called.");
 //  Serial.flush();
 
-
+ 
 //  Serial.print(F("Update room took "));
 //  Serial.print(timeTaken);
 //  Serial.println(F(" ms."));
+  
 }
 
 void SwitchLevel(LevelType type)

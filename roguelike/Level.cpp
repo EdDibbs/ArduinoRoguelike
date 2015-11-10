@@ -103,16 +103,16 @@ void Level::LoadJungleSprites()
     uint16_t* tileHeadLocal = new uint16_t[TileWidth * TileHeight];
     switch (i)
     {
-      case 0: tileHeadMemory = JUNGLE_FLOOR_TILE; break;
+      case 0: tileHeadMemory = JUNGLE_FLOOR; break;
 
       //corners
       case 1: tileHeadMemory = JUNGLE_WALL_CORNER; break;
       
       //N/S
-      case 2: tileHeadMemory = JUNGLE_NWALL1; break;
+      case 2: tileHeadMemory = JUNGLE_NWALL_1; break;
 
       //E/W
-      case 3: tileHeadMemory = JUNGLE_WWALL1; break;      
+      case 3: tileHeadMemory = JUNGLE_WWALL_1; break;      
 
       //N/S door
       case 4: tileHeadMemory = JUNGLE_NWALL_DOOR; break;

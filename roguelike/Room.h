@@ -51,6 +51,9 @@ class Room
   bool FlaggedForDeletion;
 
   void RemoveActor(uint32_t id);
+
+  private:
+  void PrintCell(Unit* head);
 };
 
 #endif
