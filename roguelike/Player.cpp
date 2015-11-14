@@ -19,10 +19,12 @@ Player::Player(Level* curLevel) : Actor(curLevel)
   Height = (short)pgm_read_word_near(CurSpritePtr + 1);
   Type = TypePlayer;
   invulnTimeRemaining = 0.0;
-  
+  attackCooldown = 0.00;
+
   HP = 3;
   MaxHP = 3;
   MoveSpeed = 5;
+  SetPosition(SCREEN_WIDTH/2 - 1, SCREEN_HEIGHT/2 - 1);
 }
 void Player::pollJoysticks()
 {
@@ -83,17 +85,22 @@ void Player::Update()
       invulnInvisible = false;
     }
   }
+
+  //handle our attack cooldown
   
   pollJoysticks();
 }
 
 void Player::attack(uint8_t dir)
 {
-  AttackPlayer* attack;
-  
-  attack = new AttackPlayer(CurLevel, dir);
-  attack->CurPosX = CurPosX;
-  attack->CurPosY = CurPosY;  
+  if (attackCooldown < millis())
+  {
+    AttackPlayer* attack;
+    
+    attack = new AttackPlayer(CurLevel, dir);
+    attack->SetPosition(CurPosX, CurPosY);
+    attackCooldown = millis() + 500;
+  }
 }
 
 void Player::UpdateAnimationFrame(uint8_t dir)

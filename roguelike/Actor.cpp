@@ -9,9 +9,9 @@ Actor::Actor(Level* curLevel)
   FlaggedForDeletion = false;
   UniqueId = GetUniqueId();
   LastPosX = 0;
-  CurPosX = SCREEN_WIDTH / 2;
+  CurPosX = SCREEN_WIDTH/2;
   LastPosY = 0;
-  CurPosY = SCREEN_HEIGHT /2;
+  CurPosY = SCREEN_HEIGHT/2;
   LastWidth= Width = 0;
   LastHeight= Height = 0;
   UpdatePlaygridLoc();
@@ -304,18 +304,18 @@ void Actor::Move(float xDir, float yDir)
 
 void Actor::UpdatePlaygridLoc()
 {
-  if (CurLevel != NULL && CurLevel->CurrentRoom != NULL)
+  if (CurLevel != NULL && CurLevel->CurrentRoom == NULL) return;
+  
+  //get our old grid coords
+  int oldX = (LastPosX - LevelDrawXOffset) / TileWidth;
+  int oldY = (LastPosY - LevelDrawYOffset) / TileHeight;
+
+  //get our new grid coords
+  int newX = (CurPosX - LevelDrawXOffset) / TileWidth;
+  int newY = (CurPosY - LevelDrawYOffset) / TileHeight;
+
+  if (newX != oldX || newY != oldY)
   {
-    //get our old grid coords
-    int oldX = (LastPosX - LevelDrawXOffset) / TileWidth;
-    int oldY = (LastPosY - LevelDrawYOffset) / TileHeight;
-
-    //get our new grid coords
-    int newX = (CurPosX - LevelDrawXOffset) / TileWidth;
-    int newY = (CurPosY - LevelDrawYOffset) / TileHeight;
-
-    if (newX != oldX || newY != oldY)
-    {
 //      Serial.print("Moving from [");
 //      Serial.print(oldX);
 //      Serial.print(", ");
@@ -326,70 +326,85 @@ void Actor::UpdatePlaygridLoc()
 //      Serial.print(newY);
 //      Serial.println("]...");
 
-      //take us out of the old grid
-      if (CurLevel->CurrentRoom->cells != NULL
-      && oldX >= 0 && oldX < LevelWidth && oldY >= 0 && oldY < LevelHeight)
+    //take us out of the old grid
+    if (CurLevel->CurrentRoom->cells != NULL
+    && oldX >= 0 && oldX < LevelWidth && oldY >= 0 && oldY < LevelHeight)
+    {
+      Unit* unit = CurLevel->CurrentRoom->cells[oldX][oldY];
+
+      //try to find us (a unit with this id)
+      while (unit != NULL && unit->actor != NULL && unit->actor->UniqueId != this->UniqueId)
       {
-        Unit* unit = CurLevel->CurrentRoom->cells[oldX][oldY];
+        unit = unit->next;
+      }
 
-        //try to find us (a unit with this id)
-        while (unit != NULL && unit->actor != NULL && unit->actor->UniqueId != this->UniqueId)
+      //check if we found ourselves
+      if (unit != NULL && unit->actor != NULL && unit->actor->UniqueId == this->UniqueId)
+      {
+        //break the link to this actor
+        if (unit->next != NULL)
         {
-          unit = unit->next;
+          unit->next->prev = unit->prev;
         }
-
-        //check if we found ourselves
-        if (unit != NULL && unit->actor != NULL && unit->actor->UniqueId == this->UniqueId)
+        
+        if (unit->prev != NULL)
         {
-          //break the link to this actor
-          if (unit->next != NULL)
-          {
-            unit->next->prev = unit->prev;
-          }
-          
-          if (unit->prev != NULL)
-          {
-            unit->prev->next = unit->next;
-          }
-          else
-          {
-            CurLevel->CurrentRoom->cells[oldX][oldY] = unit->next;
-          }
-          
-          //free the memory
-          delete unit;
+          unit->prev->next = unit->next;
         }
         else
         {
-          Serial.print("Couldn't find ourselves in our old tile location (");
-          Serial.print(oldX);
-          Serial.print(", ");
-          Serial.print(oldY);
-          Serial.println(")!");
+          CurLevel->CurrentRoom->cells[oldX][oldY] = unit->next;
         }
+        
+        //free the memory
+        delete unit;
+//      Serial.print("Took ");
+//      Serial.print(UniqueId);
+//      Serial.print(" out of [");
+//      Serial.print(oldX);
+//      Serial.print(", ");
+//      Serial.print(oldY);
+//      Serial.println("]");
       }
       else
       {
-        Serial.println(F("Not a valid old old tile."));
+//        Serial.print("Couldn't find ");
+//        Serial.print(UniqueId);
+//        Serial.print(" in our old tile location [");
+//        Serial.print(oldX);
+//        Serial.print(", ");
+//        Serial.print(oldY);
+//        Serial.println("]!");
       }
-
-      //put us in the new grid square
-      if (CurLevel->CurrentRoom->cells != NULL)
-      {
-        Unit* newUnit = new Unit;
-        newUnit->actor = this;
-        newUnit->prev = NULL;
-        newUnit->next = CurLevel->CurrentRoom->cells[newX][newY];
-        if (newUnit->next != NULL)
-        {
-          newUnit->next->prev = newUnit;
-        }
-
-        CurLevel->CurrentRoom->cells[newX][newY] = newUnit;        
-      }
-
     }
-  } 
+    else
+    {
+      Serial.println(F("Not a valid old old tile."));
+    }
+
+    //put us in the new grid square
+    if (CurLevel->CurrentRoom->cells != NULL)
+    {
+      Unit* newUnit = new Unit;
+      newUnit->actor = this;
+      newUnit->prev = NULL;
+      newUnit->next = CurLevel->CurrentRoom->cells[newX][newY];
+      if (newUnit->next != NULL)
+      {
+        newUnit->next->prev = newUnit;
+      }
+
+      CurLevel->CurrentRoom->cells[newX][newY] = newUnit;        
+//      Serial.print("Put ");
+//      Serial.print(UniqueId);
+//      Serial.print(" at [");
+//      Serial.print(newX);
+//      Serial.print(", ");
+//      Serial.print(newY);
+//      Serial.println("]");
+    }
+
+  }
   
 }
 
@@ -448,4 +463,5 @@ void Actor::SetPosition(int xpos, int ypos)
   
   UpdateMovement();
   UpdatePlaygridLoc();  
+  MovedThisFrame = true;
 }

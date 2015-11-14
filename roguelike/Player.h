@@ -17,6 +17,8 @@ class Player : public Actor
   private:
     void pollJoysticks();
     void attack(uint8_t dir);
+    long attackCooldown;
+    
     long invulnTimeRemaining;
     long lastInvulnTick;
     short invulnFlashCount;

@@ -195,7 +195,15 @@ void updateRoom()
       Unit* units = room->cells[x][y];
       while (units != NULL)
       {  
-        Actor* actor = units->actor;
+        Actor* actor = units->actor;                
+        if (actor == NULL)
+        {
+          Serial.println(F("FOUND A UNIT WITH ACTOR == NULL"));
+          Serial.flush();
+          units = units->next;
+          continue;
+        }
+        
         if (!actor->MovedThisFrame)
         {
           actor->UpdatePlaygridLoc();
