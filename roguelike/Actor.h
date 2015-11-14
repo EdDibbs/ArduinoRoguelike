@@ -36,7 +36,7 @@ class Actor
 {
   public:
     Actor(Level* curLevel) ;
-    virtual ~Actor() { };
+    virtual ~Actor() { Undraw(); };
     ActorType Type;
     
     void Draw();

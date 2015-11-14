@@ -184,15 +184,15 @@ void Level::GenerateTestRoom()
   }
 
   //add a bat
-  MobBat* bat = new MobBat(this);
-  bat->SetPosition(40, 70);
-  
-  Unit* unit = new Unit();
-  unit->actor = bat;
-  unit->prev = NULL;
-  unit->next = NULL;
-  
-  CurrentRoom->cells[bat->GetTileX()][bat->GetTileY()] = unit;
+//  MobBat* bat = new MobBat(this);
+//  bat->SetPosition(40, 70);
+//  
+//  Unit* unit = new Unit();
+//  unit->actor = bat;
+//  unit->prev = NULL;
+//  unit->next = NULL;
+//  
+//  CurrentRoom->cells[bat->GetTileX()][bat->GetTileY()] = unit;
 }
 
 void Level::TestDraw()

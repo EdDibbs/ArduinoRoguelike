@@ -111,7 +111,8 @@ void Actor::Undraw()
         maxY = LastPosY + LastHeight;      
         break;
     }
-//      Serial.print("quadrant: ");
+//      Serial.print(UniqueId);
+//      Serial.print(": quadrant: ");
 //      Serial.print(quadrant);
 //      Serial.print(", minX: ");
 //      Serial.print(minX);
@@ -192,14 +193,11 @@ void Actor::Undraw()
             continue;
           }
 
-          //see if we collided with this actor
-          if (LastPosX + LastWidth > actor->CurPosX
+          //if we didn't collide with this actor (AABB), then continue
+          if (!(LastPosX + LastWidth > actor->CurPosX
               && LastPosX < actor->CurPosX + actor->Width
               && LastPosY + LastHeight > actor->CurPosY
-              && LastPosY < actor->CurPosY + actor->Height)
-          {                     
-          }
-          else
+              && LastPosY < actor->CurPosY + actor->Height))
           {
             units = units->next;
             continue;
