@@ -36,7 +36,7 @@ class Actor
 {
   public:
     Actor(Level* curLevel) ;
-    virtual ~Actor() { Undraw(); };
+    virtual ~Actor() { LastSpritePtr = CurSpritePtr; LastPosX = CurPosX; LastPosY = CurPosY; Undraw(); };
     ActorType Type;
     
     void Draw();

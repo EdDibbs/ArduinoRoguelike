@@ -252,7 +252,8 @@ void Actor::Undraw()
         }        
       }
     }
-    
+
+  int pixelCount = LastWidth * LastHeight;
   //fill in the hole of where we were  
   for ( int x = 0; x < LastWidth; x++)
   {
@@ -268,6 +269,7 @@ void Actor::Undraw()
       if (value == 0xF81F)
       {
         fillBuffer[index] = 0xF81F; //fill with transparency
+        pixelCount--;
       }
     }
   }
@@ -276,6 +278,9 @@ void Actor::Undraw()
   delete[] fillBuffer;
 
   long timeTaken = millis() - startTime;
+//  Serial.print("Undrawing ");
+//  Serial.print(pixelCount);
+//  Serial.println(" pixels.");
 //  Serial.print(F("Undraw took "));
 //  Serial.print(timeTaken);
 //  Serial.println(F(" ms."));

@@ -29,6 +29,8 @@ AttackPlayer::AttackPlayer(Level* curLevel, uint8_t dir) : Actor(curLevel)
   Width = (short)pgm_read_word_near(CurSpritePtr);
   Height = (short)pgm_read_word_near(CurSpritePtr + 1);
   MoveSpeed = 2;
+  NumFramesPerAnim = 7;
+  CurAnimationCount = 0;
   
   TimeToKill = millis() + 1000;
 }
@@ -63,11 +65,39 @@ void AttackPlayer::Update()
       Move(-1, 0);
     break;
   }
+
 }
 
 void AttackPlayer::UpdateAnimationFrame(uint8_t dir)
 {
+  CurAnimationCount++;
+  //check if enough frame passed to rerender
+  if (CurAnimationCount < NumFramesPerAnim)
+  {
+    return;
+  }
   
+  switch (Direction)
+  {
+    case 0: //up
+    
+    break;
+    case 1: //right
+      
+    break;
+    case 2: //down
+      
+    break;
+    case 3: //left
+      if (CurSpritePtr == ATTACK_LEFT) CurSpritePtr = ATTACK_DIAG_D_LEFT;
+      else if (CurSpritePtr == ATTACK_DIAG_D_LEFT) CurSpritePtr = ATTACK_DOWN;
+      else if (CurSpritePtr == ATTACK_DOWN) CurSpritePtr = ATTACK_DIAG_UP_RIGHT;
+      else if (CurSpritePtr == ATTACK_DOWN) CurSpritePtr = ATTACK_UP;
+      else CurSpritePtr = ATTACK_LEFT;
+    break;
+  }
+  
+  CurAnimationCount = 0;
 }
 
 void AttackPlayer::OnActorCollision(Actor* other)
