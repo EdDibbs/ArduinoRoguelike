@@ -87,8 +87,7 @@ void Player::Update()
     }
   }
 
-  //handle our attack cooldown
-  
+  //handle our attack cooldown  
   pollJoysticks();
 }
 

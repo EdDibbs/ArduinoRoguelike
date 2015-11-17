@@ -121,11 +121,11 @@ void StartNewGame()
 
 bool CheckForCollision(Actor* act1, Actor* act2)
 {
-  Sprint("Checking ");
-  Sprint(act1->UniqueId);
-  Sprint(" against ");
-  Sprint(act2->UniqueId);
-  Sprint("...");
+//  Sprint("Checking ");
+//  Sprint(act1->UniqueId);
+//  Sprint(" against ");
+//  Sprint(act2->UniqueId);
+//  Sprint("...");
   
   //AABB checking
   if (act1->CurPosX + act1->Width > act2->CurPosX
@@ -133,11 +133,11 @@ bool CheckForCollision(Actor* act1, Actor* act2)
       && act1->CurPosY + act1->Height > act2->CurPosY
       && act1->CurPosY < act2->CurPosY + act2->Height)
       {
-        Sprintln("true");
+        //Sprintln("true");
         return true;
       }
 
-  Sprintln("false");
+  //Sprintln("false");
   return false;
 }
 

@@ -362,14 +362,18 @@ void Actor::UpdatePlaygridLoc()
         
         //free the memory
         delete unit;
-        
-        Sprint("Took ");
-        Sprint(UniqueId);
-        Sprint(" out of [");
-        Sprint(oldX);
-        Sprint(", ");
-        Sprint(oldY);
-        Sprintln("]");
+      
+//        Sprint("Took ");
+//        Sprint(UniqueId);
+//        Sprint(" out of [");
+//        Sprint(oldX);
+//        Sprint(", ");
+//        Sprint(oldY);
+//        Sprint("] (");
+//        Sprint(LastPosX);
+//        Sprint(", ");
+//        Sprint(LastPosY);
+//        Sprintln(")");
       }
       else
       {
@@ -379,7 +383,11 @@ void Actor::UpdatePlaygridLoc()
         Sprint(oldX);
         Sprint(", ");
         Sprint(oldY);
-        Sprintln("]!");
+        Sprint("] (");
+        Sprint(LastPosX);
+        Sprint(", ");
+        Sprint(LastPosY);
+        Sprintln(")!");
       }
     }
     else
@@ -400,13 +408,17 @@ void Actor::UpdatePlaygridLoc()
       }
 
       CurLevel->CurrentRoom->cells[newX][newY] = newUnit;        
-      Sprint("Put ");
-      Sprint(UniqueId);
-      Sprint(" at [");
-      Sprint(newX);
-      Sprint(", ");
-      Sprint(newY);
-      Sprintln("]");
+//      Sprint("Put ");
+//      Sprint(UniqueId);
+//      Sprint(" at [");
+//      Sprint(newX);
+//      Sprint(", ");
+//      Sprint(newY);
+//      Sprint("] (");
+//      Sprint(CurPosX);
+//      Sprint(", ");
+//      Sprint(CurPosY);
+//      Sprintln(")");
     }
 
   }

@@ -32,6 +32,7 @@ void MobBat::Update()
     if (tileX < 1)
     {
       MovingLeft = false;
+      Move(0,0);
     }
     else
     {
@@ -43,6 +44,7 @@ void MobBat::Update()
     if (tileX > LevelWidth - 3)
     {
       MovingLeft = true;
+      Move(0,0);
     }
     else
     {
