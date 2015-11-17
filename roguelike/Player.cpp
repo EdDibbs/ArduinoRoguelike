@@ -1,3 +1,4 @@
+#include "Macros.h"
 #include "Player.h"
 #include "Screen.h"
 #include "SpriteDefinitions.h"
@@ -5,8 +6,8 @@
 
 #define JOYSTICK_LEFT_X A2
 #define JOYSTICK_LEFT_Y A3
-#define JOYSTICK_RIGHT_X A6
-#define JOYSTICK_RIGHT_Y A7
+#define JOYSTICK_RIGHT_X A4
+#define JOYSTICK_RIGHT_Y A5
 
 Player::Player(Level* curLevel) : Actor(curLevel)
 {
@@ -46,10 +47,10 @@ void Player::pollJoysticks()
   float upDownAbs = rightUpDown > 0 ? rightUpDown : rightUpDown * -1;
   float leftRightAbs = rightLeftRight > 0 ? rightLeftRight: rightLeftRight* -1;
 
-//  Serial.print("Y: ");
-//  Serial.print(rightUpDown);
-//  Serial.print(" X: ");
-//  Serial.println(rightLeftRight);
+//  Sprint("Y: ");
+//  Sprint(rightUpDown);
+//  Sprint(" X: ");
+//  Sprintln(rightLeftRight);
   
   //find the greater direction, attack in that direction
   if (upDownAbs > leftRightAbs)
@@ -193,6 +194,7 @@ void Player::UpdateAnimationFrame(uint8_t dir)
 
 void Player::OnActorCollision(Actor* other)
 {
+  Sprintln("Player got hit!");
   if(other->Type == TypeMob && invulnTimeRemaining == 0.0)
   {
     HP--;

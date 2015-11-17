@@ -1,3 +1,4 @@
+#include "Macros.h"
 #include "AttackPlayer.h"
 #include "Actor.h"
 #include "SpriteDefinitions.h"
@@ -21,15 +22,15 @@ AttackPlayer::AttackPlayer(Level* curLevel, uint8_t dir) : Actor(curLevel)
       CurSpritePtr = ATTACK_LEFT;
     break;
     default:
-      Serial.print("Got unexpected direction in AttackPlayer() : ");
-      Serial.println(dir);
+      Sprint("Got unexpected direction in AttackPlayer() : ");
+      Sprintln(dir);
     break;
   }
 
   Width = (short)pgm_read_word_near(CurSpritePtr);
   Height = (short)pgm_read_word_near(CurSpritePtr + 1);
   MoveSpeed = 2;
-  NumFramesPerAnim = 7;
+  NumFramesPerAnim = 10;
   CurAnimationCount = 0;
   
   TimeToKill = millis() + 1000;
@@ -83,7 +84,14 @@ void AttackPlayer::UpdateAnimationFrame(uint8_t dir)
     
     break;
     case 1: //right
-      
+      if (CurSpritePtr == ATTACK_RIGHT) CurSpritePtr = ATTACK_DIAG_D_RIGHT;
+      else if (CurSpritePtr == ATTACK_DIAG_D_RIGHT) CurSpritePtr = ATTACK_DOWN;
+      else if (CurSpritePtr == ATTACK_DOWN) CurSpritePtr = ATTACK_DIAG_D_LEFT;
+      else if (CurSpritePtr == ATTACK_DIAG_D_LEFT) CurSpritePtr = ATTACK_LEFT;
+      else if (CurSpritePtr == ATTACK_LEFT) CurSpritePtr = ATTACK_DIAG_UP_LEFT;
+      else if (CurSpritePtr == ATTACK_DIAG_UP_LEFT) CurSpritePtr = ATTACK_UP;
+      else if (CurSpritePtr == ATTACK_UP) CurSpritePtr = ATTACK_DIAG_UP_RIGHT;
+      else CurSpritePtr = ATTACK_RIGHT;
     break;
     case 2: //down
       
@@ -91,8 +99,11 @@ void AttackPlayer::UpdateAnimationFrame(uint8_t dir)
     case 3: //left
       if (CurSpritePtr == ATTACK_LEFT) CurSpritePtr = ATTACK_DIAG_D_LEFT;
       else if (CurSpritePtr == ATTACK_DIAG_D_LEFT) CurSpritePtr = ATTACK_DOWN;
-      else if (CurSpritePtr == ATTACK_DOWN) CurSpritePtr = ATTACK_DIAG_UP_RIGHT;
-      else if (CurSpritePtr == ATTACK_DOWN) CurSpritePtr = ATTACK_UP;
+      else if (CurSpritePtr == ATTACK_DOWN) CurSpritePtr = ATTACK_DIAG_D_RIGHT;
+      else if (CurSpritePtr == ATTACK_DIAG_D_RIGHT) CurSpritePtr = ATTACK_RIGHT;
+      else if (CurSpritePtr == ATTACK_RIGHT) CurSpritePtr = ATTACK_DIAG_UP_RIGHT;
+      else if (CurSpritePtr == ATTACK_DIAG_UP_RIGHT) CurSpritePtr = ATTACK_UP;
+      else if (CurSpritePtr == ATTACK_UP) CurSpritePtr = ATTACK_DIAG_UP_LEFT;
       else CurSpritePtr = ATTACK_LEFT;
     break;
   }
@@ -102,12 +113,14 @@ void AttackPlayer::UpdateAnimationFrame(uint8_t dir)
 
 void AttackPlayer::OnActorCollision(Actor* other)
 {
+  if (FlaggedForDeletion) return;
   if (other->Type != TypeMob) return;
   
   //do damage to other actor
   other->HP = other->HP - 1;
   
   //if we're not piercing, just stop updating and release
+  FlaggedForDeletion = true;
 }
 
 

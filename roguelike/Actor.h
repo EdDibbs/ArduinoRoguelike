@@ -1,5 +1,6 @@
 #ifndef __ACTOR_h
 #define __ACTOR_h
+#include "Macros.h"
 #include <Arduino.h>
 #include "Level.h"
 

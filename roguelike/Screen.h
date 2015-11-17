@@ -1,5 +1,6 @@
 #ifndef __SCREEN_h
 #define __SCREEN_h
+#include "Macros.h"
 #include <Arduino.h>
 
 //assumes rotated Adafruit 1.8" screen

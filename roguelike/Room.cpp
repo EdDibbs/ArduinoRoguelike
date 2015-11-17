@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "Macros.h"
 #include "Room.h"
 #include "Actor.h"
 
@@ -13,7 +14,7 @@ Room::Room()
 
 Room::~Room()
 {
-  Serial.println("Destructing room...");
+  Sprintln("Destructing room...");
   
   for (int x = 0; x < GRID_WIDTH; x++)
   {
@@ -46,13 +47,13 @@ void Room::PrintCell(Unit* head)
   Unit* iter = head;
   while (iter != NULL)
   {      
-    Serial.print((unsigned int) iter);  
+    Sprint((unsigned int) iter);  
     iter = iter->next;
     if (iter != NULL)
-      Serial.print("->");
+      Sprint("->");
   }
   
-  Serial.println();
+  Sprintln();
 }
 
 void Room::RemoveActor(uint32_t id)
@@ -97,9 +98,9 @@ void Room::RemoveActor(uint32_t id)
     }
   }
   
-  Serial.print("Removed ");
-  Serial.print(count);
-  Serial.println(" instances of actor.");
+  Sprint("Removed ");
+  Sprint(count);
+  Sprintln(" instances of actor.");
   Serial.flush();
   
 }

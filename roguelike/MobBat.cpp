@@ -1,3 +1,4 @@
+#include "Macros.h"
 #include "MobBat.h"
 #include "Screen.h"
 #include "SpriteDefinitions.h"
@@ -67,10 +68,10 @@ void MobBat::Update()
 //          float xDir = (float)(actor->CurPosX - CurPosX) / 40;
 //          float yDir = (float)(actor->CurPosY - CurPosY) / 40;
 //
-////          Serial.print("Bat moving. xDir: ");
-////          Serial.print(xDir);
-////          Serial.print(" yDir: ");
-////          Serial.println(yDir);
+////          Sprint("Bat moving. xDir: ");
+////          Sprint(xDir);
+////          Sprint(" yDir: ");
+////          Sprintln(yDir);
 //          Move(xDir, yDir);
 //          return;
 //        }
@@ -81,9 +82,7 @@ void MobBat::Update()
 //  }
 
   if (HP <= 0) FlaggedForDeletion = true;
-  
-  //we didn't find anything, so don't move
-  Move(0,0);  
+    
 }
 
 void MobBat::UpdateAnimationFrame(uint8_t dir)
@@ -154,7 +153,7 @@ void MobBat::UpdateAnimationFrame(uint8_t dir)
 
 void MobBat::OnActorCollision(Actor* other)
 {
-  Serial.println(F("Bat collided!"));
+  Sprintln(F("Bat collided!"));
 }
 
 

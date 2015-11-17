@@ -1,5 +1,6 @@
 #ifndef __ROOM_h
 #define __ROOM_h
+#include "Macros.h"
 #include <Arduino.h>
 
 class Actor;

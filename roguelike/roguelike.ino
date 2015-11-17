@@ -1,4 +1,4 @@
-
+#include "Macros.h"
 #include <Arduino.h>
 #include <avr/pgmspace.h> //abililty to store variables in program space
 
@@ -27,6 +27,7 @@
 //
 ///////////////////////////////////////
 
+
 PDQ_ST7735 _tft; //global access to the screen needed by the library
 
 
@@ -52,7 +53,7 @@ void setup() {
   
   //setup serial communication  
   Serial.begin(115200);
-  Serial.println(F("Setting up..."));
+  Sprintln(F("Setting up..."));
   
   //init the screen
   Screen* screen = &Screen::Instance();
@@ -87,19 +88,19 @@ void loop() {
 
   if (lostGame)
   {
-    Serial.println(F("Game Over!"));
+    Sprintln(F("Game Over!"));
     printGameOverScreen();
     lostGame = false; //don't keep drawing this text
 
     delay(1000);    
-    //StartNewGame();
+    StartNewGame();
     //start new game currently broken
   }
 }
 
 void StartNewGame()
 {
-  Serial.println(F("Starting new game..."));
+  Sprintln(F("Starting new game..."));
   __SetCursor(3, __ScreenHeight()/2);
   __SetTextColor(0xFFFF);
   _tft.print(F("Insert splash screen here"));  
@@ -120,15 +121,23 @@ void StartNewGame()
 
 bool CheckForCollision(Actor* act1, Actor* act2)
 {
+  Sprint("Checking ");
+  Sprint(act1->UniqueId);
+  Sprint(" against ");
+  Sprint(act2->UniqueId);
+  Sprint("...");
+  
   //AABB checking
   if (act1->CurPosX + act1->Width > act2->CurPosX
       && act1->CurPosX < act2->CurPosX + act2->Width
       && act1->CurPosY + act1->Height > act2->CurPosY
       && act1->CurPosY < act2->CurPosY + act2->Height)
       {
+        Sprintln("true");
         return true;
       }
 
+  Sprintln("false");
   return false;
 }
 
@@ -142,16 +151,16 @@ void updateRoom()
   {    
     for (int y = 0; y < LevelHeight; y++)
     {       
-//      Serial.print("Checking (");
-//      Serial.print(x);
-//      Serial.print(", ");
-//      Serial.print(y);
-//      Serial.println(")...");
+//      Sprint("Checking (");
+//      Sprint(x);
+//      Sprint(", ");
+//      Sprint(y);
+//      Sprintln(")...");
 //      Serial.flush(); 
 //      
       if (room == NULL)
       {
-        Serial.println(F("ROOM IS NULL IN updateRoom()"));        
+        Sprintln(F("ROOM IS NULL IN updateRoom()"));        
         Serial.flush();
         continue;
       }
@@ -163,7 +172,7 @@ void updateRoom()
         Actor* actor = units->actor;
         if (actor == NULL)
         {
-          Serial.println(F("FOUND A UNIT WITH ACTOR == NULL"));
+          Sprintln(F("FOUND A UNIT WITH ACTOR == NULL"));
           Serial.flush();
           units = units->next;
           continue;
@@ -198,7 +207,7 @@ void updateRoom()
         Actor* actor = units->actor;                
         if (actor == NULL)
         {
-          Serial.println(F("FOUND A UNIT WITH ACTOR == NULL"));
+          Sprintln(F("FOUND A UNIT WITH ACTOR == NULL"));
           Serial.flush();
           units = units->next;
           continue;
@@ -210,16 +219,34 @@ void updateRoom()
           actor->MovedThisFrame = true;
         }
 
-        Unit* otherUnits = room->cells[x][y];
-        while (otherUnits != NULL)
+//        Sprint(actor->UniqueId);
+//        Sprint(" is in [");
+//        Sprint(x);
+//        Sprint(", ");
+//        Sprint(y);
+//        Sprintln("]");
+        
+        for (int otherX = x - 2; otherX < x + 2; otherX++)
         {
-          //do we collide with this actor?
-          if (actor->UniqueId != otherUnits->actor->UniqueId && CheckForCollision(actor, otherUnits->actor))
+          if (otherX < 0 || otherX >= LevelWidth) continue;
+          for (int otherY = y - 2; otherY < y + 2; otherY++)
           {
-            actor->OnActorCollision(otherUnits->actor);
+            if (otherY < 0 || otherY >= LevelHeight) continue;
+            
+            Unit* otherUnits = room->cells[otherX][otherY];
+            while (otherUnits != NULL)
+            {
+              //do we collide with this actor?
+              if (actor->UniqueId != otherUnits->actor->UniqueId && CheckForCollision(actor, otherUnits->actor))
+              {
+                actor->OnActorCollision(otherUnits->actor);
+              }
+              
+              otherUnits = otherUnits->next;
+            }
           }
-          otherUnits = otherUnits->next;
         }
+        
         
         units = units->next;
       }
@@ -230,14 +257,14 @@ void updateRoom()
 
 
   unsigned long timeTaken = millis() - startTime;
-//  Serial.print(updateCount);
-//  Serial.println(" updates called.");
+//  Sprint(updateCount);
+//  Sprintln(" updates called.");
 //  Serial.flush();
 
  
-//  Serial.print(F("Update room took "));
-//  Serial.print(timeTaken);
-//  Serial.println(F(" ms."));
+//  Sprint(F("Update room took "));
+//  Sprint(timeTaken);
+//  Sprintln(F(" ms."));
   
 }
 
@@ -315,7 +342,7 @@ void measureFreeMem()
 
   if (freeMem < 500)
   {
-    Serial.println(F("Out of memory!. Holding the program to prevent damage."));
+    Sprintln(F("Out of memory!. Holding the program to prevent damage."));
     isRunning = false;
   }
 }
@@ -384,8 +411,8 @@ void printFPS(unsigned long fps, uint64_t color)
   __SetTextColor(color);
   _tft.print(fps, DEC);
   
-  //Serial.print("FPS: ");
-  //Serial.println(fps);
+  //Sprint("FPS: ");
+  //Sprintln(fps);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

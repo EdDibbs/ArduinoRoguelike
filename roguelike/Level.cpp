@@ -1,4 +1,5 @@
 #define NULL 0
+#include "Macros.h"
 #include "Level.h"
 #include "Room.h"
 #include "Screen.h"
@@ -8,7 +9,7 @@
 
 Level::Level(LevelType type)
 {
-  Serial.println(F("Loading level..."));
+  Sprintln(F("Loading level..."));
   long startTime = millis();
   
   switch (type)
@@ -22,9 +23,9 @@ Level::Level(LevelType type)
 
   long timeTaken = millis() - startTime;
 
-  Serial.print(F("Took "));
-  Serial.print(timeTaken);
-  Serial.println(F(" ms to load level."));
+  Sprint(F("Took "));
+  Sprint(timeTaken);
+  Sprintln(F(" ms to load level."));
   
   GenerateTestRoom();
   TestDraw();
@@ -87,8 +88,8 @@ uint16_t* Level::GetTilePixelsCopyByType(TileType type)
 
   if (sprite == NULL)
   {
-      Serial.print(F("Couldn't get tile pixels by type: "));
-      Serial.println(type);
+      Sprint(F("Couldn't get tile pixels by type: "));
+      Sprintln(type);
       sprite = FloorTile;
   }
 
@@ -144,11 +145,11 @@ void Level::LoadJungleSprites()
       case 5: WestEastDoorTile  = tileHeadLocal;  break;      
     }
 
-    Serial.print(F("Loaded "));
-    Serial.print(i);
-    Serial.print(F(" tiles. "));
-    Serial.print(freeMemory());
-    Serial.println(F(" bytes of memory remaining."));
+    Sprint(F("Loaded "));
+    Sprint(i);
+    Sprint(F(" tiles. "));
+    Sprint(freeMemory());
+    Sprintln(F(" bytes of memory remaining."));
   }
 }
 
@@ -184,15 +185,15 @@ void Level::GenerateTestRoom()
   }
 
   //add a bat
-//  MobBat* bat = new MobBat(this);
-//  bat->SetPosition(40, 70);
-//  
-//  Unit* unit = new Unit();
-//  unit->actor = bat;
-//  unit->prev = NULL;
-//  unit->next = NULL;
-//  
-//  CurrentRoom->cells[bat->GetTileX()][bat->GetTileY()] = unit;
+  MobBat* bat = new MobBat(this);
+  bat->SetPosition(40, 70);
+  
+  Unit* unit = new Unit();
+  unit->actor = bat;
+  unit->prev = NULL;
+  unit->next = NULL;
+  
+  CurrentRoom->cells[bat->GetTileX()][bat->GetTileY()] = unit;
 }
 
 void Level::TestDraw()
@@ -233,8 +234,8 @@ void Level::TestDraw()
   }
   long totTime = millis() - startTime;
 
-  Serial.print(F("Took "));
-  Serial.print(totTime);
-  Serial.println(F(" ms to draw the level."));
+  Sprint(F("Took "));
+  Sprint(totTime);
+  Sprintln(F(" ms to draw the level."));
 }
 

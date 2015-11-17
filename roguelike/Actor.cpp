@@ -1,3 +1,4 @@
+#include "Macros.h"
 #include "Actor.h"
 #include "Screen.h"
 #include "Level.h"
@@ -66,16 +67,16 @@ void Actor::Undraw()
 
   uint8_t numXPixelsInQ1 = TileWidth  - ((LastPosX - LevelDrawXOffset) % TileWidth);
   uint8_t numYPixelsInQ1 = TileHeight - ((LastPosY - LevelDrawYOffset) % TileHeight);
-//  Serial.print("LastPosX: ");
-//  Serial.print(LastPosX);
-//  Serial.print(", LevelDrawXOffset: ");
-//  Serial.print(LevelDrawXOffset);
-//  Serial.print(", TileWidth: ");
-//  Serial.print(TileWidth);
-//  Serial.print(", numXPixelsInQ1: ");
-//  Serial.print(numXPixelsInQ1);
-//  Serial.print(", NumYPixelsInQ1: ");
-//  Serial.println(numYPixelsInQ1);
+//  Sprint("LastPosX: ");
+//  Sprint(LastPosX);
+//  Sprint(", LevelDrawXOffset: ");
+//  Sprint(LevelDrawXOffset);
+//  Sprint(", TileWidth: ");
+//  Sprint(TileWidth);
+//  Sprint(", numXPixelsInQ1: ");
+//  Sprint(numXPixelsInQ1);
+//  Sprint(", NumYPixelsInQ1: ");
+//  Sprintln(numYPixelsInQ1);
 
   int loadTileCount = 0;
   uint16_t* tileSprite = NULL;
@@ -111,17 +112,17 @@ void Actor::Undraw()
         maxY = LastPosY + LastHeight;      
         break;
     }
-//      Serial.print(UniqueId);
-//      Serial.print(": quadrant: ");
-//      Serial.print(quadrant);
-//      Serial.print(", minX: ");
-//      Serial.print(minX);
-//      Serial.print(", maxX: ");
-//      Serial.print(maxX);
-//      Serial.print(", minY: ");
-//      Serial.print(minY);
-//      Serial.print(", maxY: ");
-//      Serial.println(maxY);
+//      Sprint(UniqueId);
+//      Sprint(": quadrant: ");
+//      Sprint(quadrant);
+//      Sprint(", minX: ");
+//      Sprint(minX);
+//      Sprint(", maxX: ");
+//      Sprint(maxX);
+//      Sprint(", minY: ");
+//      Sprint(minY);
+//      Sprint(", maxY: ");
+//      Sprintln(maxY);
     for (int x = minX; x < maxX && x < LastPosX + LastWidth; x++)
     {
       for (int y = minY; y < maxY && y < LastPosY + LastHeight; y++)
@@ -225,16 +226,16 @@ void Actor::Undraw()
 
               if (otherIndex >= 2 + (actor->Width * actor->Height)) 
               {
-                Serial.print("Other index calculated incorrectly! OtherIndex: ");
-                Serial.print(otherIndex);
-                Serial.print("\totherX: ");
-                Serial.print(otherX);
-                Serial.print("\totherY: ");
-                Serial.print(otherY);
-                Serial.print("\theight: ");
-                Serial.print(actor->Height);
-                Serial.print("\twidth: ");
-                Serial.println(actor->Width);
+                Sprint("Other index calculated incorrectly! OtherIndex: ");
+                Sprint(otherIndex);
+                Sprint("\totherX: ");
+                Sprint(otherX);
+                Sprint("\totherY: ");
+                Sprint(otherY);
+                Sprint("\theight: ");
+                Sprint(actor->Height);
+                Sprint("\twidth: ");
+                Sprintln(actor->Width);
                 
                 continue;
               }
@@ -278,19 +279,16 @@ void Actor::Undraw()
   delete[] fillBuffer;
 
   long timeTaken = millis() - startTime;
-//  Serial.print("Undrawing ");
-//  Serial.print(pixelCount);
-//  Serial.println(" pixels.");
-//  Serial.print(F("Undraw took "));
-//  Serial.print(timeTaken);
-//  Serial.println(F(" ms."));
+//  Sprint("Undrawing ");
+//  Sprint(pixelCount);
+//  Sprintln(" pixels.");
+//  Sprint(F("Undraw took "));
+//  Sprint(timeTaken);
+//  Sprintln(F(" ms."));
 }
 
 void Actor::Move(float xDir, float yDir)
 {
-  int screenWidth = Screen::Instance().Width();
-  int screenHeight = Screen::Instance().Height();
-
   LastPosX = CurPosX;
   CurPosX = CurPosX + (int)(MoveSpeed * xDir);
   if (CurPosX + Width > LevelMaxX) CurPosX = LevelMaxX - Width;
@@ -309,8 +307,9 @@ void Actor::Move(float xDir, float yDir)
 
 void Actor::UpdatePlaygridLoc()
 {
+  MovedThisFrame = true;
   if (CurLevel != NULL && CurLevel->CurrentRoom == NULL) return;
-  
+    
   //get our old grid coords
   int oldX = (LastPosX - LevelDrawXOffset) / TileWidth;
   int oldY = (LastPosY - LevelDrawYOffset) / TileHeight;
@@ -321,15 +320,15 @@ void Actor::UpdatePlaygridLoc()
 
   if (newX != oldX || newY != oldY)
   {
-//      Serial.print("Moving from [");
-//      Serial.print(oldX);
-//      Serial.print(", ");
-//      Serial.print(oldY);
-//      Serial.print("] to [");
-//      Serial.print(newX);
-//      Serial.print(", ");
-//      Serial.print(newY);
-//      Serial.println("]...");
+//      Sprint("Moving from [");
+//      Sprint(oldX);
+//      Sprint(", ");
+//      Sprint(oldY);
+//      Sprint("] to [");
+//      Sprint(newX);
+//      Sprint(", ");
+//      Sprint(newY);
+//      Sprintln("]...");
 
     //take us out of the old grid
     if (CurLevel->CurrentRoom->cells != NULL
@@ -363,28 +362,29 @@ void Actor::UpdatePlaygridLoc()
         
         //free the memory
         delete unit;
-//      Serial.print("Took ");
-//      Serial.print(UniqueId);
-//      Serial.print(" out of [");
-//      Serial.print(oldX);
-//      Serial.print(", ");
-//      Serial.print(oldY);
-//      Serial.println("]");
+        
+        Sprint("Took ");
+        Sprint(UniqueId);
+        Sprint(" out of [");
+        Sprint(oldX);
+        Sprint(", ");
+        Sprint(oldY);
+        Sprintln("]");
       }
       else
       {
-//        Serial.print("Couldn't find ");
-//        Serial.print(UniqueId);
-//        Serial.print(" in our old tile location [");
-//        Serial.print(oldX);
-//        Serial.print(", ");
-//        Serial.print(oldY);
-//        Serial.println("]!");
+        Sprint("Couldn't find ");
+        Sprint(UniqueId);
+        Sprint(" in our old tile location [");
+        Sprint(oldX);
+        Sprint(", ");
+        Sprint(oldY);
+        Sprintln("]!");
       }
     }
     else
     {
-      Serial.println(F("Not a valid old old tile."));
+      Sprintln(F("Not a valid old old tile."));
     }
 
     //put us in the new grid square
@@ -400,13 +400,13 @@ void Actor::UpdatePlaygridLoc()
       }
 
       CurLevel->CurrentRoom->cells[newX][newY] = newUnit;        
-//      Serial.print("Put ");
-//      Serial.print(UniqueId);
-//      Serial.print(" at [");
-//      Serial.print(newX);
-//      Serial.print(", ");
-//      Serial.print(newY);
-//      Serial.println("]");
+      Sprint("Put ");
+      Sprint(UniqueId);
+      Sprint(" at [");
+      Sprint(newX);
+      Sprint(", ");
+      Sprint(newY);
+      Sprintln("]");
     }
 
   }
@@ -467,6 +467,5 @@ void Actor::SetPosition(int xpos, int ypos)
   CurPosY = ypos;
   
   UpdateMovement();
-  UpdatePlaygridLoc();  
-  MovedThisFrame = true;
+  UpdatePlaygridLoc();    
 }

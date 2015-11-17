@@ -1,6 +1,7 @@
 #ifndef __PLAYER_h
 #define __PLAYER_h
 #include <Arduino.h>
+#include "Macros.h"
 #include "Actor.h"
 
 class Player : public Actor
