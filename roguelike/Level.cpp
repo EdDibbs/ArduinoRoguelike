@@ -226,7 +226,9 @@ void Level::GenerateTestRoom()
       else if (row == 0 && col == 12) type = CornerNE;
       else if (row == 7 && col == 0) type = CornerSW;
       else if (row == 7 && col == 12) type = CornerSE;
+      else if (row == 0 && col == 6) type = DoorNorth;
       else if (row == 0) type = WallNorth;
+      else if (row == 7 && col == 6) type = DoorSouth;
       else if (row == 7) type = WallSouth;
       else if (col == 0) type = WallWest;
       else if (col == 12) type = WallEast;
@@ -236,16 +238,13 @@ void Level::GenerateTestRoom()
     }
   }
 
-  //add a bat
-  MobBat* bat = new MobBat(this);
-  bat->SetPosition(40, 85);
+  //add some bats
+  for (int batCount = 0; batCount < 4; batCount++)
+  {
+    MobBat* bat = new MobBat(this);
+    bat->SetPosition(25 + (batCount * 3), LevelMaxY - TileHeight - bat->Height - (batCount * (bat->Height + 10)));
+  }
   
-  Unit* unit = new Unit();
-  unit->actor = bat;
-  unit->prev = NULL;
-  unit->next = NULL;
-  
-  CurrentRoom->cells[bat->GetTileX()][bat->GetTileY()] = unit;
 }
 
 void Level::TestDraw()

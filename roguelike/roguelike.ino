@@ -226,10 +226,10 @@ void updateRoom()
 //        Sprint(y);
 //        Sprintln("]");
         
-        for (int otherX = x - 2; otherX < x + 2; otherX++)
+        for (int otherX = x - 1; otherX < x + 2; otherX++)
         {
           if (otherX < 0 || otherX >= LevelWidth) continue;
-          for (int otherY = y - 2; otherY < y + 2; otherY++)
+          for (int otherY = y - 1; otherY < y + 2; otherY++)
           {
             if (otherY < 0 || otherY >= LevelHeight) continue;
             

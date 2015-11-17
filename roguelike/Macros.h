@@ -1,7 +1,7 @@
 #ifndef __MACROS__
 #define __MACROS__
 
-#define DEBUGMODE
+//#define DEBUGMODE
 
 #ifdef DEBUGMODE
 #define Sprintln(a) (Serial.println(a))
