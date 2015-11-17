@@ -14,11 +14,8 @@ Level::Level(LevelType type)
   
   switch (type)
   {
-    case Jungle:
-    {
-      LoadJungleSprites();     
-    }
-    break;
+    case Jungle:  LoadJungleSprites();  break;
+    case Stone:   LoadStoneSprites();   break;
   }
 
   long timeTaken = millis() - startTime;
@@ -153,6 +150,61 @@ void Level::LoadJungleSprites()
   }
 }
 
+void Level::LoadStoneSprites()
+{
+  for(int i = 0; i < 5; i++) //UPDATE THIS TO 6 WHEN WE HAVE THE WEST DOOR TILE
+  {
+    const uint16_t* tileHeadMemory;
+    uint16_t* tileHeadLocal = new uint16_t[TileWidth * TileHeight];
+    switch (i)
+    {
+      case 0: tileHeadMemory = STONE_FLOOR; break;
+
+      //corners
+      case 1: tileHeadMemory = STONE_NECORNER; break;
+      
+      //N/S
+      case 2: tileHeadMemory = STONE_NWALL; break;
+
+      //E/W
+      case 3: tileHeadMemory = STONE_WWALL; break;      
+
+      //N/S door
+      case 4: tileHeadMemory = STONE_NWALL_DOOR; break;
+
+      //E/W door
+      case 5: tileHeadMemory = STONE_EWALL_DOOR;  break;
+    }
+
+    //copy the tile from flash mem to local RAM
+    for (int row = 0; row < TileWidth; row++)
+    {      
+      for (int col = 0; col < TileHeight; col++)
+      {
+        int index = (col * TileWidth) + row;
+        
+        tileHeadLocal[index] = pgm_read_word_near(tileHeadMemory + 2 + index);
+      }
+    }
+
+    //save the local copy to the correct tile
+    switch (i)
+    {
+      case 0: FloorTile     = tileHeadLocal;  break;
+      case 1: CornerTile = tileHeadLocal; break;
+      case 2: NorthSouthWallTile = tileHeadLocal;  break;      
+      case 3: WestEastWallTile  = tileHeadLocal;  break;      
+      case 4: NorthSouthDoorTile = tileHeadLocal;  break;
+      case 5: WestEastDoorTile  = tileHeadLocal;  break;      
+    }
+
+    Sprint(F("Loaded "));
+    Sprint(i);
+    Sprint(F(" tiles. "));
+    Sprint(freeMemory());
+    Sprintln(F(" bytes of memory remaining."));
+  }
+}
 void Level::GenerateTestRoom()
 {
   CurrentRoom = new Room();

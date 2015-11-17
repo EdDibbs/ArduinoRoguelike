@@ -108,7 +108,7 @@ void StartNewGame()
   delay(5000);
   __FillScreen(0x0000);
 
-  SwitchLevel(Jungle);
+  SwitchLevel(Stone);
   
   player = new Player(CurrentLevel);
     

@@ -21,6 +21,7 @@
 enum LevelType
 {
   Jungle,
+  Stone
 };
 
 class Level
@@ -46,7 +47,9 @@ class Level
   void ReleaseRoom(Room* room); //recursively releases room resources
   void TestDraw();
   void GenerateTestRoom();
+  
   void LoadJungleSprites();
+  void LoadStoneSprites();
 };
 
 #endif
