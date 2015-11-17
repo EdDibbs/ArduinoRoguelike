@@ -108,7 +108,7 @@ void StartNewGame()
   delay(5000);
   __FillScreen(0x0000);
 
-  SwitchLevel(Stone);
+  SwitchLevel(Jungle);
   
   player = new Player(CurrentLevel);
     
@@ -361,7 +361,7 @@ void printGameOverScreen()
   for (int fade = fadeCount; fade >= 0; fade--)
   {
     uint16_t color = _tft.color565((fade << 4) | fade, (fade << 4) | fade, (fade << 4) | fade);
-    __SetCursor(width/2 - 20, height/2);
+    __SetCursor(width/2 - 30, height/2);
     __SetTextColor(color);
     
     for (int i = 0; i < 12; i++)

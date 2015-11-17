@@ -45,9 +45,10 @@ void AttackPlayer::Update()
 {
   //move in our direction, count down to fizzle
   if (millis() >= TimeToKill)
-  {        
+  {     
+    Move(0,0);   
     Undraw();    
-    FlaggedForDeletion = true;
+    FlaggedForDeletion = true;    
     return;
   }
 

@@ -238,7 +238,7 @@ void Level::GenerateTestRoom()
 
   //add a bat
   MobBat* bat = new MobBat(this);
-  bat->SetPosition(40, 70);
+  bat->SetPosition(40, 85);
   
   Unit* unit = new Unit();
   unit->actor = bat;

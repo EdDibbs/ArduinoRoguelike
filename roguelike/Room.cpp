@@ -86,13 +86,17 @@ void Room::RemoveActor(uint32_t id)
           
           //free the memory          
           delete unit; 
-          unit = NULL; 
+          unit = cells[x][y]; 
           count++;
-
+          
           //return;
         }
+        else
+        {
+          unit = unit->next;
+        }
 
-        unit = unit->next;        
+        
       }
      
     }
@@ -100,7 +104,8 @@ void Room::RemoveActor(uint32_t id)
   
   Sprint("Removed ");
   Sprint(count);
-  Sprintln(" instances of actor.");
+  Sprint(" instances of actor ");
+  Sprintln(id);
   Serial.flush();
   
 }
