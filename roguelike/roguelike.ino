@@ -118,15 +118,22 @@ void ShowSplashScreen()
       cnt++;
     }
   }
+
+    delay(5000);
+  __FillScreen(0x0000);
+
+  __SetCursor(3,3);
+  __SetTextWrap(true);
+  _tft.print(F(""));
 }
 
 void StartNewGame()
 {
   Sprintln(F("Starting new game..."));
+  PrintStartGameText();
   ShowSplashScreen();  
   
-  delay(5000);
-  __FillScreen(0x0000);
+
 
   SwitchLevel(Jungle);
   
@@ -163,6 +170,8 @@ bool CheckForCollision(Actor* act1, Actor* act2)
 
 void updateRoom()
 {
+  int mobCount = 0;
+  
   unsigned long startTime = millis();
   Room* room = CurrentLevel->CurrentRoom;
   int updateCount = 0;
@@ -201,6 +210,10 @@ void updateRoom()
         actor->MovedThisFrame = false;
         actor->Update();
         updateCount++;
+        if (actor->Type == TypeMob)
+        {
+          mobCount++;
+        }
 
         units = units->next;
         if (actor->FlaggedForDeletion)
@@ -275,6 +288,12 @@ void updateRoom()
 
   }
 
+  //check if player is on top of a doorway
+  if (mobCount == 0)
+  {
+    CheckForDoorCollisions();
+  }
+  
 
   unsigned long timeTaken = millis() - startTime;
 //  Sprint(updateCount);
@@ -287,6 +306,62 @@ void updateRoom()
 //  Sprintln(F(" ms."));
   
 }
+
+void CheckForDoorCollisions()
+{
+  Room* newRoom = NULL;
+  int dir;
+  for(dir = 0; dir < 4; dir++)
+  {
+    int xPos;
+    int yPos;
+    
+    switch (dir)
+    {
+      case 0: xPos = NorthDoorX; yPos = NorthDoorY; break;
+      case 1: xPos = EastDoorX;  yPos = EastDoorY;  break;        
+      case 2: xPos = SouthDoorX; yPos = SouthDoorY; break;
+      case 3: xPos = WestDoorX;  yPos = WestDoorY;  break;
+    }
+
+    if (player->CurPosX + player->Width > xPos
+      && player->CurPosX < xPos + TileWidth
+      && player->CurPosY + player->Height > yPos
+      && player->CurPosY < yPos + TileHeight)
+      {        
+        switch(dir)
+        {
+          case 0: newRoom = CurrentLevel->CurrentRoom->NorthNeighbor; break;
+          case 1: newRoom = CurrentLevel->CurrentRoom->EastNeighbor; break;
+          case 2: newRoom = CurrentLevel->CurrentRoom->SouthNeighbor; break;
+          case 3: newRoom = CurrentLevel->CurrentRoom->WestNeighbor; break;
+        }
+
+        //break out of this for loop so we retain dir
+        break;
+      }
+  }
+
+  if (newRoom != NULL)
+  {
+    _tft.fillRect(LevelMinX, LevelMinY, LevelMaxX - LevelMinX, LevelMaxY - LevelMinY, 0x0000); 
+    CurrentLevel->CurrentRoom = newRoom;
+    CurrentLevel->DrawLevel();
+
+    int newX, newY;
+    switch(dir)
+    {
+      case 0: newX = SouthDoorX; newY = SouthDoorY - player->Height - 5; break;
+      case 1: newX = WestDoorX + TileWidth + 5; newY = WestDoorY; break;
+      case 2: newX = NorthDoorX; newY = NorthDoorY + TileHeight + 5; break;
+      case 3: newX = EastDoorX - 5; newY = EastDoorY; break;
+    }
+
+    player->SetPosition(newX, newY);
+  }
+  
+}
+
 
 void SwitchLevel(LevelType type)
 {
@@ -364,6 +439,57 @@ void measureFreeMem()
   {
     Sprintln(F("Out of memory!. Holding the program to prevent damage."));
     isRunning = false;
+  }
+}
+
+void PrintStartGameText()
+{
+  bool firstDraw = true;
+  int fadeCount = 0x0F;
+  int width = __ScreenWidth();
+  int height = __ScreenHeight();
+  __FillScreen(0x0000);
+  __SetTextWrap(true);  
+  char* startGameText = "In a world ruled by the\nevil sorcerer, Owen\nChestnut, one alchemist\nstands alone...\n\n\nYou must collect the rare\ningredients needed to makethe special brew that can\ntake down Owen Chestnut...\0";
+  int len = strlen(startGameText);
+
+  for (int fade = fadeCount; fade >= 0; fade--)
+  {
+    uint16_t color = _tft.color565((fade << 4) | fade, (fade << 4) | fade, (fade << 4) | fade);
+    __SetCursor(5, 20);
+    __SetTextColor(color);
+    
+    for (int i = 0; i < len; i++)
+    {
+      _tft.print(startGameText[i]);
+
+      float rightYread = analogRead(JOYSTICK_RIGHT_Y);
+      float rightXread = analogRead(JOYSTICK_RIGHT_X);
+      float rightUpDown = (( (rightYread) / 1020.0) - 0.5) * -1;
+      float rightLeftRight = (((rightXread) / 1020.0) - 0.5 );    
+      float upDownAbs = rightUpDown > 0 ? rightUpDown : rightUpDown * -1;
+      float leftRightAbs = rightLeftRight > 0 ? rightLeftRight: rightLeftRight* -1;
+      
+      bool fast = false;
+      if (upDownAbs > 0.2 || leftRightAbs > 0.2)
+      {
+        fast = true;
+      }
+
+      if (firstDraw)
+      {        
+        if (!fast)
+          delay(100);
+        else
+          delay(20);
+      }
+    }
+    if (firstDraw)
+    {
+      delay(3500);
+      firstDraw = false;
+    }
+    delay(300);
   }
 }
 

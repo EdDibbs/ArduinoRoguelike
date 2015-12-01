@@ -18,6 +18,18 @@
 #define LevelMaxX LevelWidth * TileWidth + LevelMinX
 #define LevelMaxY LevelHeight* TileHeight+ LevelMinY
 
+#define NorthDoorX LevelDrawXOffset + ((LevelWidth / 2) * TileWidth)
+#define NorthDoorY LevelDrawYOffset
+
+#define SouthDoorX NorthDoorX
+#define SouthDoorY LevelDrawYOffset + ((LevelHeight - 1) * TileHeight)
+
+#define WestDoorX LevelDrawXOffset
+#define WestDoorY LevelDrawYOffset + ((LevelHeight / 2) * TileHeight)
+
+#define EastDoorX LevelDrawXOffset + ((LevelWidth - 1) * TileWidth)
+#define EastDoorY WestDoorY
+
 enum LevelType
 {
   Jungle,

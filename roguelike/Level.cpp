@@ -25,7 +25,9 @@ Level::Level(LevelType type)
   Sprintln(F(" ms to load level."));
   
   CurrentRoom = GenerateTestRoom();
-  PopulateRoomWithMobs();
+  CurrentRoom->NorthNeighbor = GenerateTestRoom();
+  CurrentRoom->NorthNeighbor->SouthNeighbor = CurrentRoom;
+  
   DrawLevel();
 }
 
@@ -278,10 +280,10 @@ void Level::DrawLevel()
           case WallEast:    floorSprite = WestEastWallTile;   flip = FlipHori;  break;
           case WallSouth:   floorSprite = NorthSouthWallTile; flip = FlipVert;  break;
           case WallWest:    floorSprite = WestEastWallTile;                     break;
-          case DoorNorth:   floorSprite = NorthSouthDoorTile;                   break;
-          case DoorEast:    floorSprite = WestEastDoorTile;   flip = FlipHori;  break;
-          case DoorSouth:   floorSprite = NorthSouthDoorTile; flip = FlipVert;  break;
-          case DoorWest:    floorSprite = WestEastDoorTile;                     break;
+          case DoorNorth:   floorSprite = CurrentRoom->NorthNeighbor == NULL ? NorthSouthWallTile : NorthSouthDoorTile;                   break;
+          case DoorEast:    floorSprite = CurrentRoom->EastNeighbor  == NULL ? WestEastWallTile : WestEastDoorTile;   flip = FlipHori;  break;
+          case DoorSouth:   floorSprite = CurrentRoom->SouthNeighbor == NULL ? NorthSouthWallTile : NorthSouthDoorTile; flip = FlipVert;  break;
+          case DoorWest:    floorSprite = CurrentRoom->WestNeighbor == NULL ? WestEastWallTile: WestEastDoorTile;                     break;
           case FloorNormal: floorSprite = FloorTile;                            break;
           case FloorAlt:
           case FloorHole:

@@ -4,11 +4,6 @@
 #include "SpriteDefinitions.h"
 #include "AttackPlayer.h"
 
-#define JOYSTICK_LEFT_X A2
-#define JOYSTICK_LEFT_Y A3
-#define JOYSTICK_RIGHT_X A4
-#define JOYSTICK_RIGHT_Y A5
-
 Player::Player(Level* curLevel) : Actor(curLevel)
 {
   LastSpritePtr = PC_DOWN;

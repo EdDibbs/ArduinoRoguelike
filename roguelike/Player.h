@@ -4,6 +4,11 @@
 #include "Macros.h"
 #include "Actor.h"
 
+#define JOYSTICK_LEFT_X A2
+#define JOYSTICK_LEFT_Y A3
+#define JOYSTICK_RIGHT_X A4
+#define JOYSTICK_RIGHT_Y A5
+
 class Player : public Actor
 {
   public:
