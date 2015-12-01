@@ -98,12 +98,32 @@ void loop() {
   }
 }
 
+void ShowSplashScreen()
+{
+  _tft.fillScreen(ST7735_BLACK);
+  uint16_t splashWidth = SPLASHSCREEN[0];
+  uint16_t splashHeight = SPLASHSCREEN[1];
+  
+  for (int i = 6; i >= 0; i--)
+  {    
+    uint16_t curcolor = 0;
+    uint16_t color = _tft.color565((1 << i) - 1, (1 << i) - 1, (1 << i) - 1);
+    
+    uint16_t cnt = 0;    
+    
+    while (cnt < splashWidth * splashHeight)
+    {
+      curcolor = (uint16_t)pgm_read_word_near(SPLASHSCREEN + 2 + cnt);
+      _tft.drawRect((cnt % splashWidth) * 2, (cnt / splashWidth) * 2, 2, 2, curcolor | color);
+      cnt++;
+    }
+  }
+}
+
 void StartNewGame()
 {
   Sprintln(F("Starting new game..."));
-  __SetCursor(3, __ScreenHeight()/2);
-  __SetTextColor(0xFFFF);
-  _tft.print(F("Insert splash screen here"));  
+  ShowSplashScreen();  
   
   delay(5000);
   __FillScreen(0x0000);

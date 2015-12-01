@@ -42,11 +42,14 @@ class Level
   uint16_t* CornerTile;
   uint16_t* NorthSouthDoorTile;
   uint16_t* WestEastDoorTile;
-
+  
+  void DrawLevel();
+  void UnlockDoors();
   private:
   void ReleaseRoom(Room* room); //recursively releases room resources
-  void TestDraw();
-  void GenerateTestRoom();
+  
+  void PopulateRoomWithMobs();
+  Room* GenerateTestRoom();
   
   void LoadJungleSprites();
   void LoadStoneSprites();

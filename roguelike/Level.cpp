@@ -24,8 +24,9 @@ Level::Level(LevelType type)
   Sprint(timeTaken);
   Sprintln(F(" ms to load level."));
   
-  GenerateTestRoom();
-  TestDraw();
+  CurrentRoom = GenerateTestRoom();
+  PopulateRoomWithMobs();
+  DrawLevel();
 }
 
 Level::~Level()
@@ -55,6 +56,22 @@ void Level::ReleaseRoom(Room* room)
 
   delete room;
   room = NULL;
+}
+
+void Level::PopulateRoomWithMobs()
+{
+  //add some bats
+  for (int batCount = 0; batCount < 3; batCount++)
+  {
+    MobBat* bat = new MobBat(this);
+    bat->SetPosition(25 + (batCount * 3), LevelMaxY - TileHeight - bat->Height - (batCount * (bat->Height + 10)));
+  }
+  
+}
+
+void Level::UnlockDoors()
+{
+    
 }
 
 uint16_t* Level::GetTilePixelsCopyByType(TileType type)
@@ -205,15 +222,16 @@ void Level::LoadStoneSprites()
     Sprintln(F(" bytes of memory remaining."));
   }
 }
-void Level::GenerateTestRoom()
+
+Room* Level::GenerateTestRoom()
 {
-  CurrentRoom = new Room();
-  CurrentRoom->Tiles = new TileType[LevelWidth*LevelHeight];
+  Room* room = new Room();
+  room->Tiles = new TileType[LevelWidth*LevelHeight];
   for (int x = 0; x < LevelWidth; x++)
     {    
       for (int y = 0; y < LevelHeight; y++)
       {
-        CurrentRoom->cells[x][y] = NULL;        
+        room->cells[x][y] = NULL;        
       }
     }
     
@@ -234,20 +252,14 @@ void Level::GenerateTestRoom()
       else if (col == 12) type = WallEast;
       else type = FloorNormal;
       
-      CurrentRoom->Tiles[row * LevelWidth + col] = type;
+      room->Tiles[row * LevelWidth + col] = type;
     }
   }
 
-  //add some bats
-  for (int batCount = 0; batCount < 4; batCount++)
-  {
-    MobBat* bat = new MobBat(this);
-    bat->SetPosition(25 + (batCount * 3), LevelMaxY - TileHeight - bat->Height - (batCount * (bat->Height + 10)));
-  }
-  
+    return room;
 }
 
-void Level::TestDraw()
+void Level::DrawLevel()
 {
   long startTime = millis();
 
