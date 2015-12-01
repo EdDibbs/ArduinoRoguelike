@@ -19,6 +19,7 @@ extern void __SetTextColor(uint16_t c);
 extern void __SetTextColor(uint16_t c, uint16_t bg);
 extern void __SetTextSize(uint8_t s);
 extern void __SetTextWrap(boolean w);
+extern uint16_t __Color565(int r, int g, int b);
 extern int16_t __ScreenWidth();  
 extern int16_t __ScreenHeight();
 extern uint8_t __GetRotation();
@@ -160,6 +161,11 @@ uint16_t* Screen::FlipImage(short width, short height, uint16_t* pixels, byte fl
 uint16_t* Screen::RotateImage(short width, short height, uint16_t* pixels, byte rot)
 {
   return FlipAndRotateImage(width, height, pixels, 0, rot);
+}
+
+uint16_t Screen::Color565(int r, int g, int b)
+{
+  return __Color565(r,g,b);
 }
     
 void Screen::DrawRect(short xpos, short ypos, short width, short height, int color)

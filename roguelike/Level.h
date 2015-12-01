@@ -4,6 +4,17 @@
 #include "Room.h"
 #include <Arduino.h>
 
+#define MapStartX 60
+#define MapStartY 15
+#define MapRoomWidth 4
+#define MapRoomHeight 2
+#define MapRoomYSpace 4
+#define MapRoomXSpace 4
+#define MapHallWidth 2
+#define MapHallColor 0x79ef
+#define MapRoomColor 0xffff
+#define MapCurRoomColor 0xffe0
+
 #define LevelDrawYOffset 30
 #define LevelDrawXOffset 2
 
@@ -55,12 +66,16 @@ class Level
   uint16_t* NorthSouthDoorTile;
   uint16_t* WestEastDoorTile;
   
-  void DrawLevel();
+  void DrawRoom();
+  void DrawMap();
   void UnlockDoors();
+  void PopulateRoomWithMobs();
+  
   private:
   void ReleaseRoom(Room* room); //recursively releases room resources
-  
-  void PopulateRoomWithMobs();
+  void DrawMapRec(Room*, int x, int y);
+  void ClearMapVisited(Room* room);
+    
   Room* GenerateTestRoom();
   
   void LoadJungleSprites();

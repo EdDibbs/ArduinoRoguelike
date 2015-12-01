@@ -344,17 +344,23 @@ void CheckForDoorCollisions()
 
   if (newRoom != NULL)
   {
+    CurrentLevel->CurrentRoom->RemoveActor(player->UniqueId);
     _tft.fillRect(LevelMinX, LevelMinY, LevelMaxX - LevelMinX, LevelMaxY - LevelMinY, 0x0000); 
     CurrentLevel->CurrentRoom = newRoom;
-    CurrentLevel->DrawLevel();
-
+    if (!CurrentLevel->CurrentRoom->PlayerVisited)
+    {
+      CurrentLevel->PopulateRoomWithMobs();
+    }
+    CurrentLevel->DrawRoom();
+    CurrentLevel->DrawMap();
+    
     int newX, newY;
     switch(dir)
     {
       case 0: newX = SouthDoorX; newY = SouthDoorY - player->Height - 5; break;
       case 1: newX = WestDoorX + TileWidth + 5; newY = WestDoorY; break;
       case 2: newX = NorthDoorX; newY = NorthDoorY + TileHeight + 5; break;
-      case 3: newX = EastDoorX - 5; newY = EastDoorY; break;
+      case 3: newX = EastDoorX - player->Width - 5; newY = EastDoorY; break;
     }
 
     player->SetPosition(newX, newY);
@@ -450,7 +456,7 @@ void PrintStartGameText()
   int height = __ScreenHeight();
   __FillScreen(0x0000);
   __SetTextWrap(true);  
-  char* startGameText = "In a world ruled by the\nevil sorcerer, Owen\nChestnut, one alchemist\nstands alone...\n\n\nYou must collect the rare\ningredients needed to makethe special brew that can\ntake down Owen Chestnut...\0";
+  char* startGameText = "In a world ruled by the\nevil sorcerer Owen\nChestnut, one alchemist\nstands alone.\n\n\nYou must collect the rare\ningredients needed to makethe special brew that can\ntake down Owen Chestnut...\0";
   int len = strlen(startGameText);
 
   for (int fade = fadeCount; fade >= 0; fade--)
@@ -655,6 +661,11 @@ void __SetTextSize(uint8_t s)
 void __SetTextWrap(boolean w)
 {
   _tft.setTextWrap(w);
+}
+
+uint16_t __Color565(int r, int g, int b)
+{
+  return _tft.Color565(r,g,b);
 }
 
 int16_t __ScreenWidth()

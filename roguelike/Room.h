@@ -50,6 +50,8 @@ class Room
   Unit* cells[GRID_WIDTH][GRID_HEIGHT];  
   TileType* Tiles;
   bool FlaggedForDeletion;
+  bool PlayerVisited = false;
+  bool DrawVisited = false;
 
   void RemoveActor(uint32_t id);
 

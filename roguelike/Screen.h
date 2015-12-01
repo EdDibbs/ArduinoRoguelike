@@ -36,6 +36,8 @@ class Screen
     void DrawRect(short xpos, short ypos, short width, short height, int color);
     int Width();
     int Height();
+
+    uint16_t Color565(int r, int g, int b);
     
     //going to need something here to keep track of the BG tiles
 

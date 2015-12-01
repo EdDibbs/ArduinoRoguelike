@@ -23,12 +23,19 @@ Level::Level(LevelType type)
   Sprint(F("Took "));
   Sprint(timeTaken);
   Sprintln(F(" ms to load level."));
-  
+
+  //entry
   CurrentRoom = GenerateTestRoom();
+
+  //room 2
   CurrentRoom->NorthNeighbor = GenerateTestRoom();
   CurrentRoom->NorthNeighbor->SouthNeighbor = CurrentRoom;
+
+  //room 3
+  CurrentRoom->NorthNeighbor->EastNeighbor = GenerateTestRoom();
+  CurrentRoom->NorthNeighbor->EastNeighbor->WestNeighbor = CurrentRoom->NorthNeighbor;
   
-  DrawLevel();
+  DrawRoom();  
 }
 
 Level::~Level()
@@ -114,7 +121,7 @@ uint16_t* Level::GetTilePixelsCopyByType(TileType type)
 
 void Level::LoadJungleSprites()
 {
-  for(int i = 0; i < 5; i++) //UPDATE THIS TO 6 WHEN WE HAVE THE WEST DOOR TILE
+  for(int i = 0; i < 6; i++)
   {
     const uint16_t* tileHeadMemory;
     uint16_t* tileHeadLocal = new uint16_t[TileWidth * TileHeight];
@@ -135,8 +142,7 @@ void Level::LoadJungleSprites()
       case 4: tileHeadMemory = JUNGLE_NWALL_DOOR; break;
 
       //E/W door
-      case 5: //MISSING THIS SPRITE               
-              break;
+      case 5: tileHeadMemory = JUNGLE_WWALL_DOOR; break;
     }
 
     //copy the tile from flash mem to local RAM
@@ -250,7 +256,9 @@ Room* Level::GenerateTestRoom()
       else if (row == 0) type = WallNorth;
       else if (row == 7 && col == 6) type = DoorSouth;
       else if (row == 7) type = WallSouth;
+      else if (col == 0 && row == 4) type = DoorWest;
       else if (col == 0) type = WallWest;
+      else if (col == 12 && row == 4) type = DoorEast;
       else if (col == 12) type = WallEast;
       else type = FloorNormal;
       
@@ -261,10 +269,66 @@ Room* Level::GenerateTestRoom()
     return room;
 }
 
-void Level::DrawLevel()
+void Level::DrawMap()
+{
+  //clear the current map
+  Screen::Instance().DrawRect(48,0, 130 - 48, LevelDrawYOffset, 0x0000);
+  
+  ClearMapVisited(CurrentRoom);
+  DrawMapRec(CurrentRoom, MapStartX, MapStartY);  
+}
+
+void Level::ClearMapVisited(Room* room)
+{
+  if (room == NULL || !room->DrawVisited) return;
+  room->DrawVisited = false;
+
+  ClearMapVisited(room->NorthNeighbor);
+  ClearMapVisited(room->EastNeighbor);
+  ClearMapVisited(room->SouthNeighbor);
+  ClearMapVisited(room->WestNeighbor);
+}
+
+void Level::DrawMapRec(Room* room, int x, int y)
+{
+  Screen* screen = &Screen::Instance();
+  if (room->DrawVisited || !room->PlayerVisited) return;
+
+  room->DrawVisited = true;
+
+  //draw the 'hallways'
+  if (room->NorthNeighbor != NULL)
+    screen->DrawRect((x+ MapRoomWidth/2) - (MapHallWidth/2), y - MapRoomYSpace, MapHallWidth, MapRoomYSpace, MapHallColor);
+  if (room->EastNeighbor != NULL)
+    screen->DrawRect((x + MapRoomWidth), (y + MapRoomHeight/2) - (MapHallWidth/2), MapRoomXSpace, MapHallWidth, MapHallColor);
+  if (room->SouthNeighbor != NULL)
+    screen->DrawRect((x + MapRoomWidth/2) - (MapHallWidth/2), (y + MapRoomHeight), MapHallWidth, MapRoomYSpace, MapHallColor);
+  if (room->WestNeighbor != NULL)
+    screen->DrawRect(x - MapRoomXSpace, (y+ MapRoomHeight/2) - (MapHallWidth/2), MapRoomXSpace, MapHallWidth, MapHallColor);
+
+
+  //draw the room itself
+  if (room == CurrentRoom)
+    screen->DrawRect(x, y, MapRoomWidth, MapRoomHeight, MapCurRoomColor);
+  else
+    screen->DrawRect(x, y, MapRoomWidth, MapRoomHeight, MapRoomColor);
+
+  
+  //draw the neighbors
+  if (room->NorthNeighbor != NULL)
+    DrawMapRec(room->NorthNeighbor, x, y - MapRoomYSpace - MapRoomHeight);
+  if (room->EastNeighbor != NULL)
+    DrawMapRec(room->EastNeighbor, x + MapRoomXSpace + MapRoomWidth, y);
+  if (room->SouthNeighbor != NULL)
+    DrawMapRec(room->SouthNeighbor, x, y + MapRoomYSpace + MapRoomHeight);
+  if (room->WestNeighbor != NULL)
+    DrawMapRec(room->WestNeighbor, x - MapRoomXSpace - MapRoomWidth, y);
+}
+
+void Level::DrawRoom()
 {
   long startTime = millis();
-
+  
   for (int col = 0; col < LevelWidth; col++)
   {
     for (int row = 0; row < LevelHeight; row++)
@@ -301,6 +365,10 @@ void Level::DrawLevel()
 
   Sprint(F("Took "));
   Sprint(totTime);
-  Sprintln(F(" ms to draw the level."));
+  Sprintln(F(" ms to draw the room."));
+
+  //if we drew the room, that means we have visited this room, also we should draw the map
+  CurrentRoom->PlayerVisited = true;
+  DrawMap();
 }
 
